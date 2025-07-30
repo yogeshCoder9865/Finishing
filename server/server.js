@@ -19,6 +19,7 @@ app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/users', require('./routes/userRoutes')); // For customers/admins management
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes')); // For portal settings
+app.use('/api/dashboard', require('./routes/dashboardRoutes')); // New: Route for dashboard statistics
 
 const PORT = process.env.PORT || 5000;
 

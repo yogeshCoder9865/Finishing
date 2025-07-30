@@ -11,6 +11,42 @@ const CustomerDashboard = () => {
     const [loadingOrders, setLoadingOrders] = useState(true);
     const [ordersError, setOrdersError] = useState('');
 
+    // Mock data for featured products (replace with actual API fetch if available)
+    const featuredProducts = [
+        {
+            id: 'prod1',
+            name: 'Luxury Smartwatch',
+            imageUrl: 'https://placehold.co/150x150/4A148C/FFD700?text=Watch',
+            price: 299.99,
+            description: 'Unlock your potential. Limited Stock!',
+            tag: 'New Arrival'
+        },
+        {
+            id: 'prod2',
+            name: 'Premium Wireless Earbuds',
+            imageUrl: 'https://placehold.co/150x150/FFD700/4A148C?text=Earbuds',
+            price: 149.99,
+            description: 'Experience pure sound. Don\'t miss out!',
+            tag: 'Best Seller'
+        },
+        {
+            id: 'prod3',
+            name: 'Ergonomic Office Chair',
+            imageUrl: 'https://placehold.co/150x150/2C3E50/FDFDFD?text=Chair',
+            price: 450.00,
+            description: 'Work in comfort. Exclusive Discount!',
+            tag: 'Top Rated'
+        },
+        {
+            id: 'prod4',
+            name: 'High-Performance Laptop',
+            imageUrl: 'https://placehold.co/150x150/17A2B8/FDFDFD?text=Laptop',
+            price: 1299.00,
+            description: 'Power your ideas. Flash Sale!',
+            tag: 'Hot Deal'
+        },
+    ];
+
     useEffect(() => {
         const fetchRecentOrders = async () => {
             if (!user) { // Don't fetch if user is not loaded yet
@@ -46,7 +82,7 @@ const CustomerDashboard = () => {
         return (
             <div style={loadingContainerStyle}>
                 <div style={spinnerStyle}></div>
-                <p style={{ color: '#555', marginTop: '20px', fontSize: '1.1em' }}>Loading user data...</p>
+                <p style={{ color: colors.textMedium, marginTop: '20px', fontSize: '1.1em' }}>Loading user data...</p>
             </div>
         );
     }
@@ -76,11 +112,29 @@ const CustomerDashboard = () => {
                     </div>
                 </div>
 
+                {/* Featured Products Section */}
+                <h3 style={sectionHeaderStyle}>Featured Products</h3>
+                <div style={featuredProductsContainerStyle}>
+                    {featuredProducts.map(product => (
+                        <div key={product.id} style={productCardStyle} onClick={() => navigate(`/products/${product.id}`)}>
+                            <div style={productImageWrapperStyle}>
+                                <img src={product.imageUrl} alt={product.name} style={productImageStyle} />
+                                {product.tag && <span style={productTagStyle}>{product.tag}</span>}
+                            </div>
+                            <h4 style={productNameStyle}>{product.name}</h4>
+                            <p style={productDescriptionStyle}>{product.description}</p>
+                            <span style={productPriceStyle}>${product.price.toFixed(2)}</span>
+                            <button style={productCtaButtonStyle}>Grab Yours Now!</button> {/* More tempting CTA */}
+                        </div>
+                    ))}
+                </div>
+
+
                 <h3 style={sectionHeaderStyle}>Recent Orders</h3>
                 {loadingOrders ? (
                     <div style={loadingOrdersContainerStyle}>
                         <div style={spinnerStyle}></div>
-                        <p style={{ color: '#555', marginTop: '15px' }}>Loading recent orders...</p>
+                        <p style={{ color: colors.textMedium, marginTop: '15px' }}>Loading recent orders...</p>
                     </div>
                 ) : ordersError ? (
                     <p style={errorMessageStyle}>{ordersError}</p>
@@ -136,29 +190,48 @@ const getStatusColor = (status) => {
     }
 };
 
-// --- Inline Styles for Beautiful UI and Animations ---
+// --- Define the sophisticated color palette ---
+const colors = {
+    primaryDarkPurple: '#4A148C', // Deep Indigo/Purple
+    secondaryGold: '#FFD700', // Goldenrod
+    backgroundLight: '#FDFDFD', // Near White
+    textDark: '#2C3E50', // Dark Slate Blue
+    textMedium: '#7F8C8D', // Medium Grey
+    borderLight: '#E0E0E0', // Light Grey
+    successGreen: '#28a745', // Green
+    errorRed: '#dc3545', // Red
+    infoTeal: '#17A2B8', // Teal
+    accentBlue: '#007bff', // Bright Blue
+    buttonHoverDark: '#3A0F6B', // Darker Purple
+    cardBackground: '#FFFFFF', // Pure white for cards
+    shadowLight: 'rgba(0, 0, 0, 0.1)', // Adjusted shadow for original style
+    shadowMedium: 'rgba(0, 0, 0, 0.15)',
+    shadowDeep: 'rgba(0, 0, 0, 0.25)',
+};
+
+// --- Inline Styles for Beautiful UI and Animations (using original font sizes/layout with new colors) ---
 const pageContainerStyle = {
     display: 'flex',
     minHeight: '100vh',
-    backgroundColor: '#f0f2f5', // Light background for the whole page
-    fontFamily: 'Inter, Arial, sans-serif', // Consistent font
+    backgroundColor: colors.backgroundLight, // Using new background color
+    fontFamily: 'Inter, Arial, sans-serif',
 };
 
 const contentAreaStyle = {
     flex: 1,
     padding: '40px',
-    backgroundColor: '#ffffff', // White background for the main content area
+    backgroundColor: colors.cardBackground, // Using new card background color
     borderRadius: '12px',
-    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)', // Deeper shadow
+    boxShadow: `0 8px 25px ${colors.shadowLight}`, // Using new shadow color
     margin: '30px',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center', // Center content horizontally
-    animation: 'fadeIn 0.5s ease-out', // Fade in animation for the content area
+    alignItems: 'center',
+    animation: 'fadeIn 0.5s ease-out',
 };
 
 const pageTitleStyle = {
-    color: '#2c3e50', // Darker title color
+    color: colors.textDark, // Using new dark text color
     fontSize: '2.5em',
     marginBottom: '15px',
     fontWeight: '700',
@@ -167,25 +240,25 @@ const pageTitleStyle = {
 
 const welcomeMessageStyle = {
     fontSize: '1.1em',
-    color: '#555',
+    color: colors.textMedium, // Using new medium text color
     marginBottom: '40px',
     textAlign: 'center',
 };
 
 const gridContainerStyle = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', // Responsive grid
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
     gap: '30px',
     width: '100%',
-    maxWidth: '1000px', // Max width for content
+    maxWidth: '1000px',
     marginBottom: '50px',
 };
 
 const dashboardCardStyle = {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: colors.cardBackground, // Using new card background color
     padding: '30px',
-    borderRadius: '15px', // More rounded corners
-    boxShadow: '0 6px 20px rgba(0,0,0,0.1)', // Softer, larger shadow
+    borderRadius: '15px',
+    boxShadow: `0 6px 20px ${colors.shadowLight}`, // Using new shadow color
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
@@ -194,13 +267,13 @@ const dashboardCardStyle = {
     transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
     cursor: 'pointer',
     ':hover': {
-        transform: 'translateY(-8px)', // Lift effect on hover
-        boxShadow: '0 12px 30px rgba(0,0,0,0.15)', // Enhanced shadow on hover
+        transform: 'translateY(-8px)',
+        boxShadow: `0 12px 30px ${colors.shadowMedium}`, // Using new shadow color
     },
 };
 
 const cardTitleStyle = {
-    color: '#007bff',
+    color: colors.accentBlue, // Using new accent blue color
     fontSize: '1.6em',
     marginBottom: '15px',
     fontWeight: '600',
@@ -208,13 +281,13 @@ const cardTitleStyle = {
 
 const cardDescriptionStyle = {
     fontSize: '0.95em',
-    color: '#666',
+    color: colors.textMedium, // Using new medium text color
     marginBottom: '20px',
 };
 
 const cardButtonStyle = {
     padding: '12px 25px',
-    backgroundColor: '#3498db', // A vibrant blue
+    backgroundColor: colors.accentBlue, // Using new accent blue color
     color: 'white',
     border: 'none',
     borderRadius: '8px',
@@ -223,26 +296,26 @@ const cardButtonStyle = {
     fontWeight: 'bold',
     marginTop: '15px',
     transition: 'background-color 0.3s ease, transform 0.2s ease',
-    boxShadow: '0 4px 10px rgba(52, 152, 219, 0.3)',
+    boxShadow: `0 4px 10px rgba(0, 123, 255, 0.3)`, // Using new accent blue shadow
     ':hover': {
-        backgroundColor: '#2980b9',
+        backgroundColor: colors.buttonHoverDark, // Using new hover dark color (can be adjusted)
         transform: 'translateY(-2px)',
     },
 };
 
 const sectionHeaderStyle = {
-    color: '#2c3e50',
+    color: colors.textDark, // Using new dark text color
     fontSize: '2em',
     marginBottom: '30px',
     fontWeight: '700',
-    borderBottom: '2px solid #e0f2f7',
+    borderBottom: `2px solid ${colors.secondaryGold}`, // Using new gold accent color
     paddingBottom: '10px',
     width: '100%',
     maxWidth: '1000px',
     textAlign: 'left',
 };
 
-const loadingContainerStyle = { // Added this style definition
+const loadingContainerStyle = {
     textAlign: 'center',
     padding: '50px',
     width: '100%',
@@ -250,10 +323,10 @@ const loadingContainerStyle = { // Added this style definition
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: '300px', // Ensure it takes up space
+    minHeight: '300px',
 };
 
-const loadingOrdersContainerStyle = { // Added this style definition
+const loadingOrdersContainerStyle = {
     textAlign: 'center',
     padding: '50px',
     width: '100%',
@@ -261,12 +334,12 @@ const loadingOrdersContainerStyle = { // Added this style definition
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: '200px', // Ensure it takes up space
+    minHeight: '200px',
 };
 
 const spinnerStyle = {
-    border: '8px solid #f3f3f3',
-    borderTop: '8px solid #3498db',
+    border: `8px solid ${colors.borderLight}`, // Using new border light color
+    borderTop: `8px solid ${colors.accentBlue}`, // Using new accent blue color
     borderRadius: '50%',
     width: '60px',
     height: '60px',
@@ -275,14 +348,14 @@ const spinnerStyle = {
 };
 
 const errorMessageStyle = {
-    color: '#e74c3c',
+    color: colors.errorRed, // Using new error red color
     textAlign: 'center',
     fontSize: '1.1em',
     fontWeight: 'bold',
     padding: '20px',
-    backgroundColor: '#fde7e7',
+    backgroundColor: `rgba(220, 53, 69, 0.1)`, // Using new error red with alpha
     borderRadius: '8px',
-    border: '1px solid #e74c3c',
+    border: `1px solid ${colors.errorRed}`, // Using new error red color
     width: '100%',
     maxWidth: '800px',
 };
@@ -290,17 +363,17 @@ const errorMessageStyle = {
 const noOrdersMessageStyle = {
     textAlign: 'center',
     fontSize: '1.2em',
-    color: '#666',
+    color: colors.textMedium, // Using new medium text color
     padding: '30px',
-    border: '2px dashed #ccc',
+    border: `2px dashed ${colors.borderLight}`, // Using new border light color
     borderRadius: '10px',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: colors.cardBackground, // Using new card background color
     width: '100%',
     maxWidth: '800px',
 };
 
 const linkStyle = {
-    color: '#007bff',
+    color: colors.accentBlue, // Using new accent blue color
     textDecoration: 'none',
     fontWeight: 'bold',
     transition: 'color 0.3s ease',
@@ -313,9 +386,9 @@ const tableContainerStyle = {
     width: '100%',
     maxWidth: '1000px',
     overflowX: 'auto',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
+    boxShadow: `0 4px 15px ${colors.shadowLight}`, // Using new shadow color
     borderRadius: '10px',
-    backgroundColor: '#fff',
+    backgroundColor: colors.cardBackground, // Using new card background color
     marginBottom: '40px',
 };
 
@@ -328,8 +401,8 @@ const ordersTableStyle = {
 };
 
 const tableHeaderRowStyle = {
-    backgroundColor: '#ecf0f1',
-    color: '#34495e',
+    backgroundColor: colors.borderLight, // Using new border light color for header background
+    color: colors.textDark, // Using new dark text color
     fontSize: '1em',
     fontWeight: '600',
     textTransform: 'uppercase',
@@ -338,21 +411,21 @@ const tableHeaderRowStyle = {
 const tableHeaderCellStyle = {
     padding: '18px 20px',
     textAlign: 'left',
-    borderBottom: '1px solid #ddd',
+    borderBottom: `1px solid ${colors.borderLight}`, // Using new border light color
 };
 
 const tableRowStyle = {
-    borderBottom: '1px solid #f0f0f0',
+    borderBottom: `1px solid ${colors.borderLight}`, // Using new border light color
     transition: 'background-color 0.2s ease',
     ':hover': {
-        backgroundColor: '#f8f8f8',
+        backgroundColor: '#f8f8f8', // Still a light hover, can be adjusted with colors.backgroundLight
     },
 };
 
 const tableBodyCellStyle = {
     padding: '15px 20px',
     verticalAlign: 'middle',
-    color: '#333',
+    color: colors.textDark, // Using new dark text color
 };
 
 const orderStatusStyle = {
@@ -365,7 +438,7 @@ const orderStatusStyle = {
 
 const viewDetailsButtonStyle = {
     padding: '8px 15px',
-    backgroundColor: '#007bff',
+    backgroundColor: colors.accentBlue, // Using new accent blue color
     color: 'white',
     border: 'none',
     borderRadius: '5px',
@@ -373,14 +446,14 @@ const viewDetailsButtonStyle = {
     fontSize: '0.9em',
     transition: 'background-color 0.3s ease, transform 0.2s ease',
     ':hover': {
-        backgroundColor: '#0056b3',
+        backgroundColor: colors.buttonHoverDark, // Using new hover dark color
         transform: 'translateY(-1px)',
     },
 };
 
 const logoutButtonStyle = {
     padding: '15px 30px',
-    backgroundColor: '#dc3545', // Red for logout
+    backgroundColor: colors.errorRed, // Using new error red color
     color: 'white',
     border: 'none',
     borderRadius: '10px',
@@ -389,15 +462,126 @@ const logoutButtonStyle = {
     fontWeight: 'bold',
     marginTop: '50px',
     transition: 'background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease',
-    boxShadow: '0 6px 15px rgba(220, 53, 69, 0.3)',
+    boxShadow: `0 6px 15px rgba(220, 53, 69, 0.3)`, // Using new error red shadow
     ':hover': {
-        backgroundColor: '#c82333',
+        backgroundColor: '#c82333', // A slightly darker red for hover
         transform: 'translateY(-3px)',
-        boxShadow: '0 8px 20px rgba(220, 53, 69, 0.4)',
+        boxShadow: `0 8px 20px rgba(220, 53, 69, 0.4)`,
     },
     ':active': {
         transform: 'translateY(0)',
-        boxShadow: '0 4px 10px rgba(220, 53, 69, 0.3)',
+        boxShadow: `0 4px 10px rgba(220, 53, 69, 0.3)`,
+    },
+};
+
+// --- Styles for Featured Products (with innovative elements) ---
+const featuredProductsContainerStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', // Responsive grid for products
+    gap: '30px',
+    width: '100%',
+    maxWidth: '1000px',
+    marginBottom: '50px',
+};
+
+const productCardStyle = {
+    backgroundColor: colors.cardBackground,
+    padding: '20px',
+    borderRadius: '12px',
+    boxShadow: `0 5px 20px ${colors.shadowLight}`,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    transition: 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)',
+    cursor: 'pointer',
+    position: 'relative', // For the tag positioning
+    overflow: 'hidden', // Ensure tag doesn't overflow
+    ':hover': {
+        transform: 'translateY(-10px) rotateX(5deg)', // Subtle 3D tilt on hover
+        boxShadow: `0 15px 40px ${colors.shadowMedium}`,
+        animation: 'pulseGlow 1.5s infinite alternate', // Tempting pulse glow
+    },
+};
+
+const productImageWrapperStyle = {
+    position: 'relative',
+    width: '150px',
+    height: '150px',
+    marginBottom: '15px',
+    borderRadius: '10px',
+    overflow: 'hidden',
+    border: `2px solid ${colors.secondaryGold}`,
+    boxShadow: `0 4px 10px ${colors.shadowLight}`,
+};
+
+const productImageStyle = {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    display: 'block',
+    transition: 'transform 0.5s ease',
+    ':hover': {
+        transform: 'scale(1.1)', // Zoom effect on image hover
+    },
+};
+
+const productTagStyle = {
+    position: 'absolute',
+    top: '10px',
+    right: '10px',
+    backgroundColor: colors.primaryDarkPurple, // Dark purple tag
+    color: colors.secondaryGold, // Gold text
+    padding: '5px 10px',
+    borderRadius: '5px',
+    fontSize: '0.8em',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    boxShadow: `0 2px 5px ${colors.shadowLight}`,
+    zIndex: 10,
+    transform: 'rotate(5deg)', // Slight tilt for emphasis
+};
+
+const productNameStyle = {
+    fontSize: '1.4em',
+    fontWeight: '600',
+    color: colors.textDark,
+    marginBottom: '8px',
+};
+
+const productDescriptionStyle = {
+    fontSize: '0.95em',
+    color: colors.textMedium,
+    marginBottom: '15px',
+    height: '40px', // Fixed height to prevent layout shifts
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+};
+
+const productPriceStyle = {
+    fontSize: '1.6em',
+    fontWeight: '700',
+    color: colors.primaryDarkPurple,
+    marginBottom: '20px',
+};
+
+const productCtaButtonStyle = {
+    padding: '12px 25px',
+    background: `linear-gradient(45deg, ${colors.infoTeal}, #117a8b)`,
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '1em',
+    fontWeight: 'bold',
+    marginTop: '15px',
+    transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+    boxShadow: `0 4px 10px rgba(23, 162, 184, 0.3)`,
+    ':hover': {
+        backgroundColor: '#117a8b',
+        transform: 'translateY(-2px) scale(1.02)', // Lift and slight scale
+        boxShadow: `0 8px 20px rgba(23, 162, 184, 0.4)`,
+        animation: 'buttonPulse 0.8s infinite alternate', // Pulsing effect on button
     },
 };
 
@@ -411,6 +595,17 @@ const logoutButtonStyle = {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(255, 215, 0, 0.4); }
+    50% { box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 0 0 15px 5px rgba(255, 215, 0, 0.7); }
+    100% { box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(255, 215, 0, 0.4); }
+}
+
+@keyframes buttonPulse {
+    0% { transform: scale(1); box-shadow: 0 4px 10px rgba(23, 162, 184, 0.3); }
+    100% { transform: scale(1.03); box-shadow: 0 8px 20px rgba(23, 162, 184, 0.5); }
 }
 */
 

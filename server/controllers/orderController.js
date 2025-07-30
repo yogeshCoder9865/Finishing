@@ -1,6 +1,7 @@
 // server/controllers/orderController.js
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const User = require('../models/User'); // Import User model to search by email
 
 // @desc    Create a new order
 // @route   POST /api/orders
@@ -45,7 +46,8 @@ const createOrder = async (req, res) => {
 
         res.status(201).json(order);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error creating order:", error);
+        res.status(500).json({ message: error.message || 'Server Error' });
     }
 };
 
@@ -54,10 +56,13 @@ const createOrder = async (req, res) => {
 // @access  Private/Customer
 const getMyOrders = async (req, res) => {
     try {
-        const orders = await Order.find({ user: req.user._id }).populate('products.product', 'name price');
+        const orders = await Order.find({ user: req.user._id })
+            .populate('products.product', 'name price imageUrl') // Added imageUrl
+            .sort({ createdAt: -1 }); // Sort by newest first
         res.json(orders);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error fetching my orders:", error);
+        res.status(500).json({ message: error.message || 'Server Error' });
     }
 };
 
@@ -66,13 +71,56 @@ const getMyOrders = async (req, res) => {
 // @access  Private/Admin
 const getAllOrders = async (req, res) => {
     try {
-        // Implement filtering (status, date range, customer) and pagination if needed
-        const orders = await Order.find({})
+        const { page = 1, limit = 10, status, customerEmail } = req.query;
+
+        let filter = {}; // Initialize an empty filter object
+
+        // Filter by status if provided and not 'All'
+        if (status && status !== 'All') {
+            filter.status = status;
+        }
+
+        // Filter by customer email if provided
+        if (customerEmail) {
+            // Find user by email to get their _id
+            const user = await User.findOne({ email: { $regex: customerEmail, $options: 'i' } }); // Case-insensitive search
+            if (user) {
+                filter.user = user._id;
+            } else {
+                // If no user found with that email, return empty orders
+                return res.json({
+                    orders: [],
+                    page: parseInt(page),
+                    pages: 0,
+                    totalOrders: 0,
+                });
+            }
+        }
+
+        // Calculate skip value for pagination
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        // Fetch orders with filtering and pagination
+        const orders = await Order.find(filter)
             .populate('user', 'firstName lastName email')
-            .populate('products.product', 'name price');
-        res.json(orders);
+            .populate('products.product', 'name price imageUrl') // Added imageUrl
+            .limit(parseInt(limit))
+            .skip(skip)
+            .sort({ createdAt: -1 }); // Sort by newest first
+
+        // Get total count of orders matching the filter for pagination
+        const count = await Order.countDocuments(filter);
+        const totalPages = Math.ceil(count / parseInt(limit));
+
+        res.json({
+            orders,
+            page: parseInt(page),
+            pages: totalPages,
+            totalOrders: count,
+        });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error fetching all orders:", error);
+        res.status(500).json({ message: error.message || 'Server Error' });
     }
 };
 
@@ -83,7 +131,7 @@ const getOrderById = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id)
             .populate('user', 'firstName lastName email')
-            .populate('products.product', 'name price');
+            .populate('products.product', 'name price imageUrl'); // Added imageUrl
 
         if (order) {
             // Check if current user is admin OR the owner of the order
@@ -96,7 +144,8 @@ const getOrderById = async (req, res) => {
             res.status(404).json({ message: 'Order not found' });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error fetching order by ID:", error);
+        res.status(500).json({ message: error.message || 'Server Error' });
     }
 };
 
@@ -116,7 +165,8 @@ const updateOrderStatus = async (req, res) => {
             res.status(404).json({ message: 'Order not found' });
         }
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error("Error updating order status:", error);
+        res.status(400).json({ message: error.message || 'Server Error' });
     }
 };
 
@@ -142,7 +192,8 @@ const deleteOrder = async (req, res) => {
         await order.deleteOne();
         res.json({ message: 'Order removed' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error deleting order:", error);
+        res.status(500).json({ message: error.message || 'Server Error' });
     }
 };
 

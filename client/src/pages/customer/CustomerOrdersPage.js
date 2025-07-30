@@ -129,10 +129,18 @@ const CustomerOrdersPage = () => {
                             <h4 style={modalSectionHeaderStyle}>Products:</h4>
                             <div style={modalProductsListStyle}>
                                 {selectedOrder.products.map(item => (
-                                    <div key={item.product._id} style={modalProductItemStyle}>
-                                        <img src={item.product.imageUrl || 'https://placehold.co/50x50/eeeeee/333333?text=Prod'} alt={item.product.name} style={modalProductImageStyle} />
-                                        <span style={modalProductNameStyle}>{item.product.name} x {item.quantity}</span>
-                                        <span style={modalProductPriceStyle}>${item.priceAtOrder.toFixed(2)}</span>
+                                    <div key={item.product ? item.product._id : item._id} style={modalProductItemStyle}> {/* Fallback key */}
+                                        <img
+                                            src={item.product ? item.product.imageUrl : 'https://placehold.co/50x50/eeeeee/333333?text=Prod'}
+                                            alt={item.product ? item.product.name : 'Product Image'}
+                                            style={modalProductImageStyle}
+                                        />
+                                        <span style={modalProductNameStyle}>
+                                            {item.product ? item.product.name : 'Unknown Product'} x {item.quantity}
+                                        </span>
+                                        <span style={modalProductPriceStyle}>
+                                            ${(item.priceAtOrder || item.product?.price || 0).toFixed(2)} {/* Fallback for price */}
+                                        </span>
                                     </div>
                                 ))}
                             </div>
