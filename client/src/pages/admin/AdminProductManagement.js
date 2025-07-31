@@ -3,6 +3,27 @@ import React, { useState, useEffect, useCallback } from 'react';
 import AdminNav from '../../components/admin/AdminNav';
 import { useAuth } from '../../context/AuthContext'; // Corrected path for AuthContext
 
+// --- Professional UI Color Palette ---
+const colors = {
+    primaryBlue: '#007bff',        // Strong blue for primary actions/accents
+    secondaryGrey: '#6c757d',      // Muted grey for secondary actions/text
+    lightGrey: '#f8f9fa',          // Very light grey for backgrounds
+    white: '#ffffff',              // Pure white for card backgrounds
+    darkText: '#343a40',           // Dark charcoal for main text
+    mediumText: '#6c757d',         // Medium grey for secondary text
+    borderLight: '#dee2e6',        // Light grey for subtle borders
+    shadowSubtle: 'rgba(0, 0, 0, 0.08)', // Soft shadow
+    shadowMedium: 'rgba(0, 0, 0, 0.15)', // More pronounced shadow
+    successGreen: '#28a745',       // Standard success green
+    errorRed: '#dc3545',           // Standard error red
+    warningOrange: '#ffc107',      // Standard warning orange
+    infoBlue: '#17a2b8',           // Standard info blue (teal-ish)
+    buttonPrimary: '#007bff',      // Primary button blue
+    buttonSecondary: '#6c757d',    // Secondary button grey
+    buttonDanger: '#dc3545',       // Danger button red
+    buttonSuccess: '#28a745',      // Success button green
+};
+
 const AdminProductManagement = () => {
     const { authAxios } = useAuth();
     const [products, setProducts] = useState([]);
@@ -11,7 +32,7 @@ const AdminProductManagement = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for Edit Modal
-    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', category: '', stockQuantity: '' });
+    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', category: '', stockQuantity: '', imageUrl: '' });
     const [editedProduct, setEditedProduct] = useState(null); // State to hold product being edited
 
     // --- Custom Message Box Functions ---
@@ -22,28 +43,29 @@ const AdminProductManagement = () => {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: white;
+            background-color: ${colors.white};
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px ${colors.shadowMedium};
             z-index: 2000;
             text-align: center;
-            font-family: 'Inter', Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             max-width: 400px;
             width: 90%;
             animation: fadeIn 0.3s ease-out;
-            border: 2px solid ${type === 'error' ? '#e74c3c' : (type === 'success' ? '#28a745' : '#007bff')};
+            border: 2px solid ${type === 'error' ? colors.errorRed : (type === 'success' ? colors.successGreen : colors.infoBlue)};
         `;
         messageBox.innerHTML = `
-            <p style="font-size: 1.2em; margin-bottom: 20px; color: ${type === 'error' ? '#e74c3c' : (type === 'success' ? '#28a745' : '#333')};">${message}</p>
+            <p style="font-size: 1.1em; margin-bottom: 20px; color: ${colors.darkText};">${message}</p>
             <button id="msgBoxConfirmBtn" style="
                 padding: 10px 20px;
-                background-color: ${type === 'error' ? '#e74c3c' : (type === 'success' ? '#28a745' : '#007bff')};
-                color: white;
+                background-color: ${type === 'error' ? colors.errorRed : (type === 'success' ? colors.successGreen : colors.infoBlue)};
+                color: ${colors.white};
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
-                font-size: 1em;
+                font-size: 0.95em;
+                font-weight: 600;
                 transition: background-color 0.3s ease;
             ">OK</button>
         `;
@@ -80,39 +102,41 @@ const AdminProductManagement = () => {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: white;
+            background-color: ${colors.white};
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px ${colors.shadowMedium};
             z-index: 2000;
             text-align: center;
-            font-family: 'Inter', Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             max-width: 400px;
             width: 90%;
             animation: fadeIn 0.3s ease-out;
-            border: 2px solid #ffc107; /* Warning color */
+            border: 2px solid ${colors.warningOrange};
         `;
         confirmBox.innerHTML = `
-            <p style="font-size: 1.2em; margin-bottom: 20px; color: #333;">${message}</p>
+            <p style="font-size: 1.1em; margin-bottom: 20px; color: ${colors.darkText};">${message}</p>
             <button id="confirmBoxConfirmBtn" style="
                 padding: 10px 20px;
-                background-color: #28a745;
-                color: white;
+                background-color: ${colors.successGreen};
+                color: ${colors.white};
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
-                font-size: 1em;
+                font-size: 0.95em;
+                font-weight: 600;
                 transition: background-color 0.3s ease;
-                margin-right: 10px;
+                margin-right: 15px;
             ">Yes</button>
             <button id="confirmBoxCancelBtn" style="
                 padding: 10px 20px;
-                background-color: #6c757d;
-                color: white;
+                background-color: ${colors.secondaryGrey};
+                color: ${colors.white};
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
-                font-size: 1em;
+                font-size: 0.95em;
+                font-weight: 600;
                 transition: background-color 0.3s ease;
             ">No</button>
         `;
@@ -168,7 +192,7 @@ const AdminProductManagement = () => {
     // --- Effect to call fetchProducts on component mount (runs only once) ---
     useEffect(() => {
         fetchProducts(); // Call on mount
-    }, []); // Empty dependency array ensures this runs only once
+    }, [fetchProducts]); // Added fetchProducts to dependency array because it's a useCallback
 
     // --- Handlers for Add Product Modal ---
     const handleInputChange = (e) => {
@@ -197,7 +221,7 @@ const AdminProductManagement = () => {
 
         try {
             await authAxios.post('/products', newProduct);
-            setNewProduct({ name: '', description: '', price: '', category: '', stockQuantity: '' }); // Reset form
+            setNewProduct({ name: '', description: '', price: '', category: '', stockQuantity: '', imageUrl: '' }); // Reset form
             setIsAddModalOpen(false);
             showMessageBox('Product added successfully!', 'success', fetchProducts); // Re-fetch products after successful add
         } catch (err) {
@@ -279,7 +303,7 @@ const AdminProductManagement = () => {
                 {loading ? (
                     <div style={loadingContainerStyle}>
                         <div style={spinnerStyle}></div>
-                        <p style={{ color: '#555', marginTop: '15px' }}>Loading products...</p>
+                        <p style={{ color: colors.mediumText, marginTop: '15px' }}>Loading products...</p>
                     </div>
                 ) : products.length === 0 ? (
                     <div style={noProductsMessageStyle}>
@@ -306,6 +330,7 @@ const AdminProductManagement = () => {
                                                 src={product.imageUrl || 'https://placehold.co/60x60/e0f2f7/3498db?text=Prod'}
                                                 alt={product.name}
                                                 style={productImageThumbnailStyle}
+                                                onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/60x60/e0f2f7/3498db?text=Error'; }} // Handle broken image links
                                             />
                                         </td>
                                         <td style={tableCellStyle}>{product.name}</td>
@@ -314,14 +339,14 @@ const AdminProductManagement = () => {
                                         <td style={tableCellStyle}>{product.stockQuantity}</td>
                                         <td style={tableActionCellStyle}>
                                             <button
-                                                onClick={() => handleEditClick(product)} // Changed to handleEditClick
-                                                style={{ ...actionButtonStyle, backgroundColor: '#007bff' }}
+                                                onClick={() => handleEditClick(product)}
+                                                style={{ ...actionButtonStyle, backgroundColor: colors.buttonPrimary }}
                                             >
                                                 <i className="fas fa-edit"></i> Edit
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(product._id)}
-                                                style={{ ...actionButtonStyle, backgroundColor: '#dc3545', marginLeft: '10px' }}
+                                                style={{ ...actionButtonStyle, backgroundColor: colors.buttonDanger }}
                                             >
                                                 <i className="fas fa-trash-alt"></i> Delete
                                             </button>
@@ -368,7 +393,7 @@ const AdminProductManagement = () => {
                                     <button type="button" onClick={() => setIsAddModalOpen(false)} style={modalCancelButtonStyle}>
                                         Cancel
                                     </button>
-                                    <button type="submit" style={modalAddButtonStyle}>
+                                    <button type="submit" style={modalSaveButtonStyle}> {/* Using modalSaveButtonStyle */}
                                         Add Product
                                     </button>
                                 </div>
@@ -412,7 +437,7 @@ const AdminProductManagement = () => {
                                     <button type="button" onClick={() => setIsEditModalOpen(false)} style={modalCancelButtonStyle}>
                                         Cancel
                                     </button>
-                                    <button type="submit" style={modalAddButtonStyle}>
+                                    <button type="submit" style={modalSaveButtonStyle}> {/* Using modalSaveButtonStyle */}
                                         Save Changes
                                     </button>
                                 </div>
@@ -425,25 +450,28 @@ const AdminProductManagement = () => {
     );
 };
 
-// --- Inline Styles for Premium UI and Animations ---
+// --- Inline Styles for Professional UI and Animations ---
 const pageContainerStyle = {
     display: 'flex',
+    flexDirection: 'column', // Added for consistent top nav layout
     minHeight: '100vh',
-    backgroundColor: '#f0f2f5', // Light background for the whole page
-    fontFamily: 'Inter, Arial, sans-serif', // Consistent font
+    backgroundColor: colors.lightGrey, // Light background for the whole page
+    fontFamily: 'Inter, sans-serif', // Consistent font
+    color: colors.darkText,
 };
 
 const contentAreaStyle = {
     flex: 1,
     padding: '40px',
-    backgroundColor: '#ffffff', // White background for the main content area
-    borderRadius: '12px',
-    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)', // Deeper shadow
-    margin: '30px',
+    backgroundColor: colors.white, // White background for the main content area
+    borderRadius: '0 0 12px 12px', // Rounded bottom corners, consistent with other pages
+    boxShadow: `0 5px 20px ${colors.shadowSubtle}`, // Subtle shadow
+    margin: '0 30px 30px 30px', // Adjusted margin for top nav
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center', // Center content horizontally
-    animation: 'fadeIn 0.5s ease-out', // Fade in animation for the content area
+    animation: 'fadeInUp 0.6s ease-out', // Fade in animation for the content area
+    boxSizing: 'border-box',
 };
 
 const headerContainerStyle = {
@@ -454,64 +482,64 @@ const headerContainerStyle = {
     maxWidth: '1200px',
     marginBottom: '40px',
     paddingBottom: '15px',
-    borderBottom: '2px solid #e0f2f7',
+    borderBottom: `1px solid ${colors.borderLight}`, // Clean separator
 };
 
 const pageTitleStyle = {
-    color: '#2c3e50', // Darker title color
-    fontSize: '2.5em',
+    color: colors.primaryBlue, // Darker title color
+    fontSize: '2.8em', // Adjusted for consistency
     fontWeight: '700',
     margin: 0,
+    letterSpacing: '0.5px', // Adjusted for consistency
 };
 
 const addNewProductButtonStyle = {
     padding: '12px 25px',
-    backgroundColor: '#28a745', // Green for Add
-    color: 'white',
+    backgroundColor: colors.buttonSuccess, // Green for Add
+    color: colors.white,
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '1em',
     fontWeight: 'bold',
     transition: 'background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease',
-    boxShadow: '0 4px 10px rgba(40, 167, 69, 0.3)',
+    boxShadow: `0 4px 10px ${colors.shadowSubtle}`,
     display: 'flex',
     alignItems: 'center',
-    ':hover': {
-        backgroundColor: '#218838',
-        transform: 'translateY(-2px)',
-        boxShadow: '0 6px 15px rgba(40, 167, 69, 0.4)',
-    },
+    fontFamily: 'Inter, sans-serif',
+    // Hover effects would need JS state
 };
 
 const errorMessageStyle = {
-    color: '#e74c3c',
+    color: colors.errorRed,
     textAlign: 'center',
-    fontSize: '1.1em',
-    fontWeight: 'bold',
+    fontSize: '1em', // Adjusted for consistency
+    fontWeight: '600', // Adjusted for consistency
     padding: '12px',
-    backgroundColor: '#fde7e7',
+    backgroundColor: `${colors.errorRed}1A`,
     borderRadius: '8px',
-    border: '1px solid #e74c3c',
+    border: `1px solid ${colors.errorRed}`,
     width: '100%',
     maxWidth: '800px',
     marginBottom: '30px',
     animation: 'shake 0.5s ease-in-out',
+    fontFamily: 'Inter, sans-serif',
 };
 
 const successMessageStyle = {
-    color: '#28a745',
+    color: colors.successGreen,
     textAlign: 'center',
-    fontSize: '1.1em',
-    fontWeight: 'bold',
+    fontSize: '1em', // Adjusted for consistency
+    fontWeight: '600', // Adjusted for consistency
     padding: '12px',
-    backgroundColor: '#d4edda',
+    backgroundColor: `${colors.successGreen}1A`,
     borderRadius: '8px',
-    border: '1px solid #28a745',
+    border: `1px solid ${colors.successGreen}`,
     width: '100%',
     maxWidth: '800px',
     marginBottom: '30px',
     animation: 'bounceIn 0.6s ease-out',
+    fontFamily: 'Inter, sans-serif',
 };
 
 const loadingContainerStyle = {
@@ -526,8 +554,8 @@ const loadingContainerStyle = {
 };
 
 const spinnerStyle = {
-    border: '8px solid #f3f3f3',
-    borderTop: '8px solid #3498db',
+    border: `8px solid ${colors.borderLight}`,
+    borderTop: `8px solid ${colors.primaryBlue}`,
     borderRadius: '50%',
     width: '60px',
     height: '60px',
@@ -537,26 +565,28 @@ const spinnerStyle = {
 
 const noProductsMessageStyle = {
     textAlign: 'center',
-    fontSize: '1.3em',
-    color: '#666',
+    fontSize: '1.2em', // Adjusted for consistency
+    color: colors.mediumText,
     padding: '50px',
-    border: '2px dashed #ccc',
+    border: `2px dashed ${colors.borderLight}`,
     borderRadius: '10px',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: colors.lightGrey,
     width: '80%',
     maxWidth: '600px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+    boxShadow: `0 2px 10px ${colors.shadowSubtle}`,
     marginTop: '20px',
+    fontFamily: 'Inter, sans-serif',
 };
 
 const tableContainerStyle = {
     width: '100%',
     maxWidth: '1200px',
     overflowX: 'auto',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
+    boxShadow: `0 4px 15px ${colors.shadowSubtle}`,
     borderRadius: '10px',
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     marginBottom: '40px',
+    border: `1px solid ${colors.borderLight}`, // Added border for consistency
 };
 
 const productsTableStyle = {
@@ -568,30 +598,28 @@ const productsTableStyle = {
 };
 
 const tableHeaderRowStyle = {
-    backgroundColor: '#ecf0f1',
-    color: '#34495e',
-    fontSize: '1em',
+    backgroundColor: colors.lightGrey,
+    color: colors.darkText,
+    fontSize: '0.95em', // Adjusted for consistency
     fontWeight: '600',
     textTransform: 'uppercase',
 };
 
 const tableHeaderCellStyle = {
-    padding: '18px 20px',
+    padding: '15px 20px', // Adjusted for consistency
     textAlign: 'left',
-    borderBottom: '1px solid #ddd',
+    borderBottom: `1px solid ${colors.borderLight}`,
 };
 
 const tableRowStyle = {
-    borderBottom: '1px solid #f0f0f0',
+    borderBottom: `1px solid ${colors.borderLight}`, // Adjusted for consistency
     transition: 'background-color 0.2s ease',
-    ':hover': {
-        backgroundColor: '#f8f8f8',
-    },
+    // Hover effect would need JS state
 };
 
 const tableImageCellStyle = {
     padding: '12px 15px',
-    borderBottom: '1px solid #eee',
+    borderBottom: `1px solid ${colors.borderLight}`,
     width: '80px', // Fixed width for image column
 };
 
@@ -600,36 +628,39 @@ const productImageThumbnailStyle = {
     height: '60px',
     objectFit: 'cover',
     borderRadius: '8px',
-    border: '1px solid #eee',
+    border: `1px solid ${colors.borderLight}`,
 };
 
 const tableCellStyle = {
     padding: '12px 15px',
-    borderBottom: '1px solid #eee',
-    color: '#333',
+    borderBottom: `1px solid ${colors.borderLight}`,
+    color: colors.darkText,
 };
 
 const tableActionCellStyle = {
     padding: '12px 15px',
-    borderBottom: '1px solid #eee',
+    borderBottom: `1px solid ${colors.borderLight}`,
     whiteSpace: 'nowrap', // Prevent buttons from wrapping
+    display: 'flex', // Use flex for button alignment
+    gap: '8px', // Space between buttons
+    alignItems: 'center',
 };
 
 const actionButtonStyle = {
-    padding: '8px 15px',
+    padding: '8px 12px', // Adjusted for consistency
     borderRadius: '5px',
     border: 'none',
-    color: 'white',
+    color: colors.white,
     cursor: 'pointer',
-    fontSize: '0.9em',
-    fontWeight: 'bold',
+    fontSize: '0.85em', // Adjusted for consistency
+    fontWeight: '600',
     transition: 'background-color 0.3s ease, transform 0.2s ease',
     display: 'inline-flex',
     alignItems: 'center',
-    ':hover': {
-        backgroundColor: '#218838',
-        transform: 'translateY(-1px)',
-    },
+    gap: '6px',
+    boxShadow: `0 2px 5px ${colors.shadowSubtle}`,
+    fontFamily: 'Inter, sans-serif',
+    // Hover effects would need JS state
 };
 
 // --- Modal Styles ---
@@ -639,45 +670,50 @@ const modalOverlayStyle = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
     animation: 'fadeIn 0.3s ease-out',
+    backdropFilter: 'blur(2px)',
 };
 
 const modalContentStyle = {
-    backgroundColor: 'white',
+    backgroundColor: colors.white,
     padding: '35px',
-    borderRadius: '15px',
-    boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+    borderRadius: '10px', // Adjusted for consistency
+    boxShadow: `0 8px 30px ${colors.shadowMedium}`,
     width: '90%',
     maxWidth: '650px',
     maxHeight: '90vh',
     overflowY: 'auto',
     animation: 'zoomIn 0.3s ease-out',
+    fontFamily: 'Inter, sans-serif', // Consistent font
+    border: `1px solid ${colors.borderLight}`, // Added border for consistency
 };
 
 const modalTitleStyle = {
     fontSize: '2em',
-    color: '#2c3e50',
+    color: colors.primaryBlue,
     marginBottom: '25px',
     fontWeight: '700',
-    borderBottom: '2px solid #e0f2f7',
+    borderBottom: `1px solid ${colors.borderLight}`,
     paddingBottom: '10px',
+    textAlign: 'center', // Centered for better presentation
 };
 
 const modalErrorMessageStyle = {
-    color: '#e74c3c',
+    color: colors.errorRed,
     textAlign: 'center',
-    fontSize: '1em',
+    fontSize: '0.95em', // Adjusted for consistency
     fontWeight: 'bold',
     padding: '10px',
-    backgroundColor: '#fde7e7',
+    backgroundColor: `${colors.errorRed}1A`,
     borderRadius: '8px',
-    border: '1px solid #e74c3c',
+    border: `1px solid ${colors.errorRed}`,
     marginBottom: '20px',
+    fontFamily: 'Inter, sans-serif',
 };
 
 const formGroupStyle = {
@@ -690,22 +726,20 @@ const formGroupStyle = {
 const modalLabelStyle = {
     marginBottom: '8px',
     fontWeight: '600',
-    color: '#555',
-    fontSize: '0.95em',
+    color: colors.darkText,
+    fontSize: '0.9em', // Adjusted for consistency
 };
 
 const modalInputStyle = {
-    padding: '12px',
-    border: '1px solid #cfd8dc',
-    borderRadius: '8px',
-    fontSize: '1em',
+    padding: '10px', // Adjusted for consistency
+    border: `1px solid ${colors.borderLight}`,
+    borderRadius: '5px', // Adjusted for consistency
+    fontSize: '0.95em', // Adjusted for consistency
     boxSizing: 'border-box',
     transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
-    ':focus': {
-        borderColor: '#3498db',
-        boxShadow: '0 0 0 3px rgba(52, 152, 219, 0.2)',
-        outline: 'none',
-    },
+    backgroundColor: colors.lightGrey, // Light background for inputs
+    color: colors.darkText,
+    // Focus effect would need JS state
 };
 
 const modalActionsStyle = {
@@ -716,37 +750,33 @@ const modalActionsStyle = {
 };
 
 const modalCancelButtonStyle = {
-    padding: '12px 25px',
-    backgroundColor: '#6c757d',
-    color: 'white',
+    padding: '10px 20px', // Adjusted for consistency
+    backgroundColor: colors.secondaryGrey,
+    color: colors.white,
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '5px', // Adjusted for consistency
     cursor: 'pointer',
-    fontSize: '1.1em',
+    fontSize: '1em',
     fontWeight: 'bold',
     transition: 'background-color 0.3s ease, transform 0.2s ease',
-    boxShadow: '0 4px 10px rgba(108, 117, 125, 0.3)',
-    ':hover': {
-        backgroundColor: '#5a6268',
-        transform: 'translateY(-2px)',
-    },
+    boxShadow: `0 4px 10px ${colors.shadowSubtle}`,
+    fontFamily: 'Inter, sans-serif',
+    // Hover effect would need JS state
 };
 
-const modalAddButtonStyle = {
-    padding: '12px 25px',
-    backgroundColor: '#28a745',
-    color: 'white',
+const modalSaveButtonStyle = { // Renamed from modalAddButtonStyle for clarity in modals
+    padding: '10px 20px', // Adjusted for consistency
+    backgroundColor: colors.primaryBlue, // Primary blue for save actions
+    color: colors.white,
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '5px', // Adjusted for consistency
     cursor: 'pointer',
-    fontSize: '1.1em',
+    fontSize: '1em',
     fontWeight: 'bold',
     transition: 'background-color 0.3s ease, transform 0.2s ease',
-    boxShadow: '0 4px 10px rgba(40, 167, 69, 0.3)',
-    ':hover': {
-        backgroundColor: '#218838',
-        transform: 'translateY(-2px)',
-    },
+    boxShadow: `0 4px 10px ${colors.shadowSubtle}`,
+    fontFamily: 'Inter, sans-serif',
+    // Hover effect would need JS state
 };
 
 // Keyframes for animations (ensure these are in your client/src/index.css)

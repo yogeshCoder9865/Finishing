@@ -1,24 +1,42 @@
 // client/src/pages/common/LoginPage.js
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom'; // Import Link for "Register here" and "Forgot Password"
-import logo from '../../assesets/logo.png'; // Reverted: 'assesets' as per user's folder structure
+import { useNavigate, Link } from 'react-router-dom';
+import logo from '../../assesets/logo.png'; // Assuming a suitable logo image
+
+// --- Professional UI Color Palette (Muted Teal Theme) ---
+const colors = {
+    primaryTeal: '#008080',        // Main teal for accents and buttons
+    lightTeal: '#E0F2F2',          // Very light teal for subtle backgrounds
+    darkText: '#2F4F4F',           // Dark slate gray for main text
+    mediumText: '#708090',         // Light slate gray for secondary text
+    white: '#FFFFFF',              // Pure white for card backgrounds
+    offWhite: '#F8F8F8',           // Off-white for page background
+    borderLight: '#B0C4DE',        // Light steel blue for borders
+    shadowSubtle: 'rgba(0, 0, 0, 0.1)', // Soft shadow
+    buttonHoverTeal: '#006666',    // Darker teal on button hover
+    errorRed: '#DC3545',           // Standard error red
+    googleBlue: '#4285F4',         // Google brand blue
+    facebookBlue: '#1877F2',       // Facebook brand blue
+    linkBlue: '#007bff',           // Standard link blue
+    linkHoverBlue: '#0056b3',      // Darker link blue on hover
+};
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false); // State for loading indicator
+    const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); // Clear previous errors
-        setLoading(true); // Set loading state
+        setError('');
+        setLoading(true);
 
         try {
-            const loggedInUser = await login(email, password); // This function should now throw an error on failure
+            const loggedInUser = await login(email, password);
 
             if (loggedInUser) {
                 if (loggedInUser.role === 'admin') {
@@ -27,210 +45,147 @@ const LoginPage = () => {
                     navigate('/');
                 }
             } else {
-                // This 'else' block should ideally not be hit if 'login' always throws on failure.
-                // It's a fallback, but the 'catch' block below is more robust for Axios errors.
                 setError('Login failed. Please check your credentials.');
-                console.log('Error state set (fallback):', 'Login failed. Please check your credentials.');
             }
         } catch (err) {
             console.error('Login attempt failed:', err);
-            let errorMessage = 'Login failed. Please try again later.'; // Generic fallback
+            let errorMessage = 'Login failed. Please try again later.';
 
-            // Check for specific Axios error status (e.g., 401 for unauthorized)
             if (err.response && err.response.status === 401) {
                 errorMessage = 'Invalid email or password. Please try again.';
             } else if (err.response && err.response.data && err.response.data.message) {
-                // Use a more specific error message from the backend if available
                 errorMessage = err.response.data.message;
             }
             setError(errorMessage);
-            console.log('Error state set (catch block):', errorMessage); // Log the error being set
         } finally {
-            setLoading(false); // Always reset loading state
+            setLoading(false);
         }
     };
 
-    // --- Inline Styles for Luxury and Premium UI with Animations ---
+    // --- Inline Styles for Professional Login Page ---
 
     const pageContainerStyle = {
         display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         minHeight: '100vh',
-        height: '100vh',
-        backgroundColor: '#f0f2f5', // Light background for the whole page
-        fontFamily: 'Inter, Arial, sans-serif',
-        overflow: 'hidden', // Hide overflow for animations
-        borderRadius: '20px', // Overall rounded container
-        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.2)', // Deep shadow for the whole block
-        margin: '30px auto', // Center the entire block
-        maxWidth: '1200px', // Max width for the split layout
-        width: '95%', // Responsive width
+        backgroundColor: colors.offWhite, // Soft off-white background
+        fontFamily: 'Inter, sans-serif',
+        padding: '20px', // Add some padding around the card
+        boxSizing: 'border-box',
     };
 
-    const promoSectionStyle = {
-        flex: 1,
-        backgroundColor: '#4070f4', // Vibrant blue from the image
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
+    const loginCardStyle = {
+        backgroundColor: colors.white,
         padding: '40px',
-        color: 'white',
-        borderRadius: '20px 0 0 20px', // Rounded only on the left side
-        animation: 'slideInLeft 0.8s ease-out', // Animation for the promo section
-        position: 'relative',
-        overflow: 'hidden', // For any background effects
-    };
-
-    const promoContentStyle = {
-        textAlign: 'center',
-        maxWidth: '450px',
-        zIndex: 1, // Ensure content is above any background effects
-    };
-
-    const promoTitleStyle = {
-        fontSize: '2.8em',
-        fontWeight: '800',
-        marginBottom: '20px',
-        lineHeight: '1.2',
-        textShadow: '2px 2px 5px rgba(0,0,0,0.2)',
-    };
-
-    const promoTaglineStyle = {
-        fontSize: '1.1em',
-        lineHeight: '1.6',
-        marginBottom: '30px',
-        opacity: 0.9,
-    };
-
-    const promoImageStyle = {
+        borderRadius: '12px',
+        boxShadow: `0 8px 30px ${colors.shadowSubtle}`,
         width: '100%',
-        maxWidth: '350px',
-        height: 'auto',
-        borderRadius: '15px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-        animation: 'zoomIn 0.8s ease-out 0.4s forwards', // Staggered animation
-        opacity: 0, // Start invisible
-        transform: 'scale(0.8)', // Start smaller
-    };
-
-    const loginSectionStyle = {
-        flex: 1,
-        backgroundColor: '#ffffff', // White background for login form
-        padding: '50px 40px',
-        borderRadius: '0 20px 20px 0', // Rounded only on the right side
-        boxShadow: '0 15px 40px rgba(0, 0, 0, 0.1)', // Softer shadow for login section
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        animation: 'slideInRight 0.8s ease-out', // Animation for the login section
+        maxWidth: '450px', // Max width for the login card
+        textAlign: 'center',
+        animation: 'fadeInUp 0.6s ease-out',
+        border: `1px solid ${colors.borderLight}`,
     };
 
     const loginHeaderStyle = {
         display: 'flex',
+        flexDirection: 'column', // Stack logo and title vertically
         alignItems: 'center',
         marginBottom: '30px',
-        animation: 'fadeInDown 0.6s ease-out',
     };
 
     const logoImageStyle = {
-        width: '40px', // Smaller logo for login section
-        height: '40px',
+        width: '60px',
+        height: '60px',
         borderRadius: '50%',
-        marginRight: '15px',
-        border: '2px solid #3498db',
+        marginBottom: '15px',
+        border: `3px solid ${colors.primaryTeal}`, // Teal accent border
+        boxShadow: `0 0 15px ${colors.primaryTeal}33`, // Subtle teal glow
     };
 
     const websiteNameStyle = {
-        fontSize: '1.8em',
+        fontSize: '2.2em',
         fontWeight: '800',
-        color: '#2c3e50',
+        color: colors.darkText,
         letterSpacing: '0.5px',
+        margin: 0,
     };
 
     const formTitleStyle = {
-        color: '#2c3e50',
-        fontSize: '2.5em',
+        color: colors.darkText,
+        fontSize: '2em',
         marginBottom: '10px',
         fontWeight: '700',
-        textAlign: 'center',
     };
 
     const subTitleStyle = {
-        color: '#7f8c8d',
+        color: colors.mediumText,
         fontSize: '1em',
         marginBottom: '30px',
-        textAlign: 'center',
     };
 
     const errorMessageStyle = {
-        color: '#e74c3c',
-        backgroundColor: '#fde7e7',
+        color: colors.errorRed,
+        backgroundColor: `${colors.errorRed}1A`, // Light tint of red
         padding: '12px',
         borderRadius: '8px',
         marginBottom: '25px',
         fontSize: '0.95em',
-        fontWeight: 'bold',
-        border: '1px solid #e74c3c',
+        fontWeight: '600',
+        border: `1px solid ${colors.errorRed}`,
         animation: 'shake 0.5s ease-in-out',
-        width: '100%',
-        maxWidth: '350px',
+        width: 'calc(100% - 24px)', // Adjust for padding
+        margin: '0 auto 25px auto', // Center and add bottom margin
     };
 
     const formStyle = {
         width: '100%',
-        maxWidth: '350px', // Max width for the form elements
     };
 
     const formGroupStyle = {
         marginBottom: '20px',
         textAlign: 'left',
-        position: 'relative', // For forgot password link positioning
+        position: 'relative',
     };
 
     const labelStyle = {
         display: 'block',
         marginBottom: '8px',
         fontWeight: '600',
-        color: '#555',
-        fontSize: '0.95em',
+        color: colors.darkText,
+        fontSize: '0.9em',
     };
 
     const inputStyle = {
-        width: 'calc(100% - 24px)',
+        width: '100%',
         padding: '12px',
-        border: '1px solid #cfd8dc',
+        border: `1px solid ${colors.borderLight}`,
         borderRadius: '8px',
         fontSize: '1em',
         boxSizing: 'border-box',
         transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
-        ':focus': {
-            borderColor: '#3498db',
-            boxShadow: '0 0 0 3px rgba(52, 152, 219, 0.2)',
-            outline: 'none',
-        },
+        backgroundColor: colors.lightTeal, // Light teal background for inputs
+        color: colors.darkText,
+        // Focus effect needs JS state or CSS file for pseudo-classes
     };
 
     const forgotPasswordLinkStyle = {
         position: 'absolute',
         right: '0',
-        top: '0', // Adjust this if needed to align with label
+        top: '0',
         fontSize: '0.85em',
-        color: '#3498db',
+        color: colors.linkBlue,
         textDecoration: 'none',
         fontWeight: '500',
         transition: 'color 0.2s ease',
-        ':hover': {
-            color: '#2980b9',
-            textDecoration: 'underline',
-        },
+        // Hover effect needs JS state or CSS file
     };
 
     const loginButtonStyle = {
         width: '100%',
         padding: '15px 25px',
-        backgroundColor: '#4070f4', // Blue from promo section
-        color: 'white',
+        backgroundColor: colors.primaryTeal, // Primary teal button
+        color: colors.white,
         border: 'none',
         borderRadius: '10px',
         cursor: 'pointer',
@@ -238,41 +193,26 @@ const LoginPage = () => {
         fontWeight: 'bold',
         marginTop: '20px',
         transition: 'background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease',
-        boxShadow: '0 6px 15px rgba(64, 112, 244, 0.3)',
-        ':hover': {
-            backgroundColor: '#3360e0',
-            transform: 'translateY(-2px)',
-            boxShadow: '0 8px 20px rgba(64, 112, 244, 0.4)',
-        },
-        ':active': {
-            transform: 'translateY(0)',
-            boxShadow: '0 4px 10px rgba(64, 112, 244, 0.3)',
-        },
-        ':disabled': { // Style for disabled state
-            backgroundColor: '#a0c8f5',
-            cursor: 'not-allowed',
-            boxShadow: 'none',
-            transform: 'none', // Ensure no transform on disabled state
-        },
+        boxShadow: `0 6px 15px ${colors.primaryTeal}33`,
+        // Hover/active/disabled effects need JS state or CSS file
     };
 
     const orDividerStyle = {
         display: 'flex',
         alignItems: 'center',
         width: '100%',
-        maxWidth: '350px',
         margin: '30px 0',
     };
 
     const orLineStyle = {
         flexGrow: 1,
         height: '1px',
-        backgroundColor: '#ddd',
+        backgroundColor: colors.borderLight,
     };
 
     const orTextStyle = {
         margin: '0 15px',
-        color: '#888',
+        color: colors.mediumText,
         fontSize: '0.9em',
         fontWeight: '500',
     };
@@ -281,7 +221,6 @@ const LoginPage = () => {
         display: 'flex',
         gap: '15px',
         width: '100%',
-        maxWidth: '350px',
         marginBottom: '30px',
     };
 
@@ -289,7 +228,7 @@ const LoginPage = () => {
         flex: 1,
         padding: '12px 15px',
         borderRadius: '8px',
-        border: '1px solid #ddd',
+        border: `1px solid ${colors.borderLight}`,
         cursor: 'pointer',
         fontSize: '1em',
         fontWeight: 'bold',
@@ -297,28 +236,18 @@ const LoginPage = () => {
         alignItems: 'center',
         justifyContent: 'center',
         transition: 'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+        backgroundColor: colors.white,
+        // Hover effects need JS state or CSS file
     };
 
     const socialButtonGoogleStyle = {
         ...socialButtonBaseStyle,
-        backgroundColor: 'white',
-        color: '#4285F4', // Google blue
-        ':hover': {
-            backgroundColor: '#f5f5f5',
-            borderColor: '#4285F4',
-            boxShadow: '0 2px 10px rgba(66, 133, 244, 0.2)',
-        },
+        color: colors.googleBlue,
     };
 
     const socialButtonFacebookStyle = {
         ...socialButtonBaseStyle,
-        backgroundColor: 'white',
-        color: '#1877F2', // Facebook blue
-        ':hover': {
-            backgroundColor: '#f5f5f5',
-            borderColor: '#1877F2',
-            boxShadow: '0 2px 10px rgba(24, 119, 242, 0.2)',
-        },
+        color: colors.facebookBlue,
     };
 
     const socialIconStyle = {
@@ -329,57 +258,35 @@ const LoginPage = () => {
     const registerLinkStyle = {
         marginTop: '20px',
         fontSize: '0.95em',
-        color: '#666',
+        color: colors.mediumText,
     };
 
     const linkStyle = {
-        color: '#3498db',
+        color: colors.linkBlue,
         textDecoration: 'none',
         fontWeight: 'bold',
         transition: 'color 0.3s ease',
-        ':hover': {
-            textDecoration: 'underline',
-        },
-    };
-
-    const adminDemoStyle = {
-        marginTop: '15px',
-        fontSize: '0.85em',
-        color: '#7f8c8d',
+        // Hover effect needs JS state or CSS file
     };
 
     return (
         <div style={pageContainerStyle}>
-            {/* Left Promotional Section */}
-            <div style={promoSectionStyle}>
-                <div style={promoContentStyle}>
-                    <h2 style={promoTitleStyle}>Simplify Management With Our Dashboard.</h2>
-                    <p style={promoTaglineStyle}>
-                        Simplify your e-commerce management with our user-friendly admin dashboard.
-                    </p>
-                    <img
-                        src="https://placehold.co/300x200/4070f4/FFFFFF?text=Characters" // Placeholder for characters image
-                        alt="Management Characters"
-                        style={promoImageStyle}
-                    />
-                </div>
-            </div>
-
-            {/* Right Login Form Section */}
-            <div style={loginSectionStyle}>
-                {/* Logo and Website Name at the top of the login section */}
+            <div style={loginCardStyle}>
+                {/* Logo and Website Name */}
                 <div style={loginHeaderStyle}>
                     <img
-                        src={logo} // Customizable logo URL
+                        src={logo}
                         alt="Yogi Tech Logo"
                         style={logoImageStyle}
                     />
-                    <h1 style={websiteNameStyle}>Yogi Tech</h1>
+                    <h1 style={websiteNameStyle}>Moni Accessories</h1>
                 </div>
 
                 <h2 style={formTitleStyle}>Welcome Back</h2>
                 <p style={subTitleStyle}>Please login to your account</p>
-                {error && <p key={error} style={errorMessageStyle}>{error}</p>} {/* Added key for better re-rendering */}
+
+                {error && <p key={error} style={errorMessageStyle}>{error}</p>}
+
                 <form onSubmit={handleSubmit} style={formStyle}>
                     <div style={formGroupStyle}>
                         <label htmlFor="email" style={labelStyle}>Email address</label>
@@ -429,10 +336,7 @@ const LoginPage = () => {
                 <p style={registerLinkStyle}>
                     Don't have an account? <Link to="/register" style={linkStyle}>Signup</Link>
                 </p>
-                {/* <p style={adminDemoStyle}>
-                    Admin Demo: <strong>admin@example.com</strong> / <strong>admin123</strong>
-                </p> */}
-            </div> 
+            </div>
         </div>
     );
 };

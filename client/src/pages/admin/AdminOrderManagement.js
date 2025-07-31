@@ -3,21 +3,44 @@ import React, { useState, useEffect, useCallback } from 'react';
 import AdminNav from '../../components/admin/AdminNav';
 import { useAuth } from '../../context/AuthContext';
 
+// --- Professional UI Color Palette ---
+const colors = {
+    primaryBlue: '#007bff',        // Strong blue for primary actions/accents
+    secondaryGrey: '#6c757d',      // Muted grey for secondary actions/text
+    lightGrey: '#f8f9fa',          // Very light grey for backgrounds
+    white: '#ffffff',              // Pure white for card backgrounds
+    darkText: '#343a40',           // Dark charcoal for main text
+    mediumText: '#6c757d',         // Medium grey for secondary text
+    borderLight: '#dee2e6',        // Light grey for subtle borders
+    shadowSubtle: 'rgba(0, 0, 0, 0.08)', // Soft shadow
+    shadowMedium: 'rgba(0, 0, 0, 0.15)', // More pronounced shadow
+    successGreen: '#28a745',       // Standard success green
+    errorRed: '#dc3545',           // Standard error red
+    warningOrange: '#ffc107',      // Standard warning orange
+    infoBlue: '#17a2b8',           // Standard info blue (teal-ish)
+    buttonPrimary: '#007bff',      // Primary button blue
+    buttonSecondary: '#6c757d',    // Secondary button grey
+    buttonDanger: '#dc3545',       // Danger button red
+    buttonWarning: '#ffc107',      // Warning button orange
+    buttonInfo: '#17a2b8',         // Info button teal
+    buttonSuccess: '#28a745',      // Success button green
+};
+
 const AdminOrderManagement = () => {
     const { authAxios } = useAuth();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState(''); // Added for success messages
+    const [successMessage, setSuccessMessage] = useState('');
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [filterStatus, setFilterStatus] = useState('All');
     const [searchCustomerEmail, setSearchCustomerEmail] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const itemsPerPage = 10; // Number of orders per page
+    const itemsPerPage = 10;
 
-    // --- Custom Message Box Functions (Re-used for consistency) ---
+    // --- Custom Message Box Functions (Styled for professional theme) ---
     const showMessageBox = (message, type = 'info', onConfirm) => {
         const messageBox = document.createElement('div');
         messageBox.style.cssText = `
@@ -25,28 +48,29 @@ const AdminOrderManagement = () => {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: white;
+            background-color: ${colors.white};
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px ${colors.shadowMedium};
             z-index: 2000;
             text-align: center;
-            font-family: 'Inter', Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             max-width: 400px;
             width: 90%;
             animation: fadeIn 0.3s ease-out;
-            border: 2px solid ${type === 'error' ? '#e74c3c' : (type === 'success' ? '#28a745' : '#007bff')};
+            border: 2px solid ${type === 'error' ? colors.errorRed : (type === 'success' ? colors.successGreen : colors.infoBlue)};
         `;
         messageBox.innerHTML = `
-            <p style="font-size: 1.2em; margin-bottom: 20px; color: ${type === 'error' ? '#e74c3c' : (type === 'success' ? '#28a745' : '#333')};">${message}</p>
+            <p style="font-size: 1.1em; margin-bottom: 20px; color: ${colors.darkText};">${message}</p>
             <button id="msgBoxConfirmBtn" style="
                 padding: 10px 20px;
-                background-color: ${type === 'error' ? '#e74c3c' : (type === 'success' ? '#28a745' : '#007bff')};
-                color: white;
+                background-color: ${type === 'error' ? colors.errorRed : (type === 'success' ? colors.successGreen : colors.infoBlue)};
+                color: ${colors.white};
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
-                font-size: 1em;
+                font-size: 0.95em;
+                font-weight: 600;
                 transition: background-color 0.3s ease;
             ">OK</button>
         `;
@@ -83,39 +107,41 @@ const AdminOrderManagement = () => {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: white;
+            background-color: ${colors.white};
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px ${colors.shadowMedium};
             z-index: 2000;
             text-align: center;
-            font-family: 'Inter', Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             max-width: 400px;
             width: 90%;
             animation: fadeIn 0.3s ease-out;
-            border: 2px solid #ffc107; /* Warning color */
+            border: 2px solid ${colors.warningOrange};
         `;
         confirmBox.innerHTML = `
-            <p style="font-size: 1.2em; margin-bottom: 20px; color: #333;">${message}</p>
+            <p style="font-size: 1.1em; margin-bottom: 20px; color: ${colors.darkText};">${message}</p>
             <button id="confirmBoxConfirmBtn" style="
                 padding: 10px 20px;
-                background-color: #28a745;
-                color: white;
+                background-color: ${colors.successGreen};
+                color: ${colors.white};
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
-                font-size: 1em;
+                font-size: 0.95em;
+                font-weight: 600;
                 transition: background-color 0.3s ease;
-                margin-right: 10px;
+                margin-right: 15px;
             ">Yes</button>
             <button id="confirmBoxCancelBtn" style="
                 padding: 10px 20px;
-                background-color: #6c757d;
-                color: white;
+                background-color: ${colors.secondaryGrey};
+                color: ${colors.white};
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
-                font-size: 1em;
+                font-size: 0.95em;
+                font-weight: 600;
                 transition: background-color 0.3s ease;
             ">No</button>
         `;
@@ -170,7 +196,8 @@ const AdminOrderManagement = () => {
             }
 
             const res = await authAxios.get('/orders', { params });
-            setOrders(res.data.orders || res.data); // Ensure it handles both array and object with 'orders' key
+            // Ensure res.data is an array or has an 'orders' key that is an array
+            setOrders(res.data.orders || res.data);
             setTotalPages(res.data.pages || 1);
         } catch (err) {
             console.error('Failed to fetch orders:', err);
@@ -178,12 +205,12 @@ const AdminOrderManagement = () => {
         } finally {
             setLoading(false);
         }
-    }, [authAxios, currentPage, filterStatus, searchCustomerEmail, itemsPerPage]); // Added itemsPerPage to dependencies
+    }, [authAxios, currentPage, filterStatus, searchCustomerEmail, itemsPerPage]);
 
     // --- Effect to call fetchOrders on component mount and dependency changes ---
     useEffect(() => {
         fetchOrders();
-    }, [fetchOrders]); // Depend on the memoized fetchOrders function
+    }, [fetchOrders]);
 
     // --- Handlers for Order Actions ---
 
@@ -243,13 +270,442 @@ const AdminOrderManagement = () => {
     // Helper for Status Colors
     const getStatusColor = (status) => {
         switch (status) {
-            case 'Pending': return '#ffc107'; // Yellow/Orange
-            case 'Processing': return '#007bff'; // Blue
-            case 'Shipped': return '#17a2b8'; // Teal
-            case 'Delivered': return '#28a745'; // Green
-            case 'Cancelled': return '#dc3545'; // Red
-            default: return '#6c757d'; // Grey
+            case 'Pending': return colors.warningOrange;
+            case 'Processing': return colors.infoBlue;
+            case 'Shipped': return colors.infoBlue;
+            case 'Delivered': return colors.successGreen;
+            case 'Cancelled': return colors.errorRed;
+            default: return colors.mediumText;
         }
+    };
+
+    // --- Inline Styles for Professional UI ---
+    const pageContainerStyle = {
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+        backgroundColor: colors.lightGrey,
+        fontFamily: 'Inter, sans-serif',
+        color: colors.darkText,
+    };
+
+    const contentAreaStyle = {
+        flex: 1,
+        padding: '40px',
+        backgroundColor: colors.white,
+        borderRadius: '0 0 12px 12px',
+        boxShadow: `0 5px 20px ${colors.shadowSubtle}`,
+        margin: '0 30px 30px 30px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        animation: 'fadeInUp 0.6s ease-out',
+        boxSizing: 'border-box',
+    };
+
+    const headerContainerStyle = {
+        display: 'flex',
+        flexDirection: 'column', // Changed to column for better stacking on smaller screens
+        justifyContent: 'center', // Center title
+        alignItems: 'center',
+        width: '100%',
+        maxWidth: '1200px',
+        marginBottom: '40px',
+        paddingBottom: '15px',
+        borderBottom: `1px solid ${colors.borderLight}`,
+    };
+
+    const pageTitleStyle = {
+        color: colors.primaryBlue,
+        fontSize: '2.8em',
+        fontWeight: '700',
+        margin: 0,
+        letterSpacing: '0.5px',
+        textAlign: 'center',
+    };
+
+    const controlsContainerStyle = {
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '20px',
+        marginBottom: '40px',
+        width: '100%',
+        maxWidth: '1200px',
+        padding: '15px',
+        backgroundColor: colors.lightGrey,
+        borderRadius: '10px',
+        boxShadow: `0 2px 10px ${colors.shadowSubtle}`,
+    };
+
+    const filterGroupStyle = {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        position: 'relative',
+    };
+
+    const labelStyle = {
+        fontWeight: '600',
+        color: colors.darkText,
+        fontSize: '1em',
+    };
+
+    const selectStyle = {
+        padding: '10px 15px',
+        border: `1px solid ${colors.borderLight}`,
+        borderRadius: '8px',
+        fontSize: '1em',
+        backgroundColor: colors.white,
+        color: colors.darkText,
+        cursor: 'pointer',
+        transition: 'border-color 0.3s ease',
+        // Hover/focus would need JS state or CSS file
+    };
+
+    const searchInputStyle = {
+        padding: '10px 15px 10px 40px', // Left padding for icon
+        width: '250px',
+        border: `1px solid ${colors.borderLight}`,
+        borderRadius: '8px',
+        fontSize: '1em',
+        boxSizing: 'border-box',
+        transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+        backgroundColor: colors.white,
+        color: colors.darkText,
+        // Hover/focus would need JS state or CSS file
+    };
+
+    const searchIconStyle = {
+        position: 'absolute',
+        left: '15px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        color: colors.mediumText,
+        fontSize: '1em',
+    };
+
+    const errorMessageStyle = {
+        color: colors.errorRed,
+        textAlign: 'center',
+        fontSize: '1em',
+        fontWeight: '600',
+        padding: '12px',
+        backgroundColor: `${colors.errorRed}1A`,
+        borderRadius: '8px',
+        border: `1px solid ${colors.errorRed}`,
+        width: '100%',
+        maxWidth: '800px',
+        marginBottom: '30px',
+        animation: 'shake 0.5s ease-in-out',
+        fontFamily: 'Inter, sans-serif',
+    };
+
+    const successMessageStyle = {
+        color: colors.successGreen,
+        textAlign: 'center',
+        fontSize: '1em',
+        fontWeight: '600',
+        padding: '12px',
+        backgroundColor: `${colors.successGreen}1A`,
+        borderRadius: '8px',
+        border: `1px solid ${colors.successGreen}`,
+        width: '100%',
+        maxWidth: '800px',
+        marginBottom: '30px',
+        animation: 'bounceIn 0.6s ease-out',
+        fontFamily: 'Inter, sans-serif',
+    };
+
+    const loadingContainerStyle = {
+        textAlign: 'center',
+        padding: '50px',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '300px',
+    };
+
+    const spinnerStyle = {
+        border: `8px solid ${colors.borderLight}`,
+        borderTop: `8px solid ${colors.primaryBlue}`,
+        borderRadius: '50%',
+        width: '60px',
+        height: '60px',
+        animation: 'spin 1s linear infinite',
+        margin: '0 auto',
+    };
+
+    const noOrdersMessageStyle = {
+        textAlign: 'center',
+        fontSize: '1.2em',
+        color: colors.mediumText,
+        padding: '50px',
+        border: `2px dashed ${colors.borderLight}`,
+        borderRadius: '10px',
+        backgroundColor: colors.lightGrey,
+        width: '80%',
+        maxWidth: '600px',
+        boxShadow: `0 2px 10px ${colors.shadowSubtle}`,
+        marginTop: '20px',
+        fontFamily: 'Inter, sans-serif',
+    };
+
+    const resetFilterButtonStyle = {
+        padding: '10px 20px',
+        backgroundColor: colors.secondaryGrey,
+        color: colors.white,
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        fontSize: '0.95em',
+        fontWeight: '600',
+        marginTop: '20px',
+        transition: 'background-color 0.3s ease, transform 0.2s ease',
+        boxShadow: `0 2px 8px ${colors.shadowSubtle}`,
+        fontFamily: 'Inter, sans-serif',
+        // Hover/active effects would need JS state
+    };
+
+    const tableContainerStyle = {
+        width: '100%',
+        maxWidth: '1200px',
+        overflowX: 'auto',
+        boxShadow: `0 4px 15px ${colors.shadowSubtle}`,
+        borderRadius: '10px',
+        backgroundColor: colors.white,
+        marginBottom: '40px',
+        border: `1px solid ${colors.borderLight}`,
+    };
+
+    const ordersTableStyle = {
+        width: '100%',
+        borderCollapse: 'separate',
+        borderSpacing: '0',
+        borderRadius: '10px',
+        overflow: 'hidden',
+    };
+
+    const tableHeaderRowStyle = {
+        backgroundColor: colors.lightGrey,
+        color: colors.darkText,
+        fontSize: '0.95em',
+        fontWeight: '600',
+        textTransform: 'uppercase',
+    };
+
+    const tableHeaderCellStyle = {
+        padding: '15px 20px',
+        textAlign: 'left',
+        borderBottom: `1px solid ${colors.borderLight}`,
+    };
+
+    const tableRowStyle = {
+        borderBottom: `1px solid ${colors.borderLight}`,
+        transition: 'background-color 0.2s ease',
+        // Hover effect would need JS state
+    };
+
+    const tableCellStyle = {
+        padding: '12px 15px',
+        borderBottom: `1px solid ${colors.borderLight}`,
+        color: colors.darkText,
+    };
+
+    const statusBadgeStyle = {
+        padding: '5px 10px',
+        borderRadius: '5px',
+        color: colors.white,
+        fontWeight: 'bold',
+        fontSize: '0.85em',
+    };
+
+    const tableActionCellStyle = {
+        padding: '12px 15px',
+        borderBottom: `1px solid ${colors.borderLight}`,
+        whiteSpace: 'nowrap',
+        display: 'flex', // Use flex for button alignment
+        gap: '8px', // Space between buttons
+        alignItems: 'center',
+    };
+
+    const actionButtonStyle = {
+        padding: '8px 12px',
+        borderRadius: '5px',
+        border: 'none',
+        color: colors.white,
+        cursor: 'pointer',
+        fontSize: '0.85em',
+        fontWeight: '600',
+        transition: 'background-color 0.3s ease, transform 0.2s ease',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        boxShadow: `0 2px 5px ${colors.shadowSubtle}`,
+        // Hover effect would need JS state
+    };
+
+    const paginationContainerStyle = {
+        marginTop: '30px',
+        textAlign: 'center',
+        display: 'flex',
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+        gap: '10px',
+        padding: '10px',
+        borderRadius: '8px',
+        backgroundColor: colors.lightGrey,
+        boxShadow: `0 2px 8px ${colors.shadowSubtle}`,
+    };
+
+    const paginationButtonStyle = {
+        padding: '10px 15px',
+        margin: '0 5px',
+        border: `1px solid ${colors.borderLight}`,
+        borderRadius: '5px',
+        cursor: 'pointer',
+        fontSize: '0.95em',
+        transition: 'background-color 0.3s ease, color 0.3s ease, transform 0.2s ease',
+        // Hover effect would need JS state
+    };
+
+    // --- Modal Styles ---
+    const modalOverlayStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+        animation: 'fadeIn 0.3s ease-out',
+        backdropFilter: 'blur(2px)',
+    };
+
+    const modalContentStyle = {
+        backgroundColor: colors.white,
+        padding: '35px',
+        borderRadius: '10px',
+        boxShadow: `0 8px 30px ${colors.shadowMedium}`,
+        width: '90%',
+        maxWidth: '750px',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        animation: 'zoomIn 0.3s ease-out',
+        fontFamily: 'Inter, sans-serif',
+        border: `1px solid ${colors.borderLight}`,
+    };
+
+    const modalTitleStyle = {
+        fontSize: '2em',
+        color: colors.primaryBlue,
+        marginBottom: '25px',
+        fontWeight: '700',
+        borderBottom: `1px solid ${colors.borderLight}`,
+        paddingBottom: '10px',
+        textAlign: 'center',
+    };
+
+    const modalErrorMessageStyle = {
+        color: colors.errorRed,
+        textAlign: 'center',
+        fontSize: '0.95em',
+        fontWeight: 'bold',
+        padding: '10px',
+        backgroundColor: `${colors.errorRed}1A`,
+        borderRadius: '8px',
+        border: `1px solid ${colors.errorRed}`,
+        marginBottom: '20px',
+        fontFamily: 'Inter, sans-serif',
+    };
+
+    const modalInfoGridStyle = {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '15px',
+        marginBottom: '25px',
+        paddingBottom: '15px',
+        borderBottom: `1px dashed ${colors.borderLight}`,
+        color: colors.darkText,
+        fontSize: '0.95em',
+    };
+
+    const modalSectionHeaderStyle = {
+        fontSize: '1.4em',
+        color: colors.darkText,
+        marginTop: '25px',
+        marginBottom: '15px',
+        fontWeight: '600',
+    };
+
+    const modalProductsListStyle = {
+        maxHeight: '200px',
+        overflowY: 'auto',
+        paddingRight: '10px',
+        marginBottom: '25px',
+        borderBottom: `1px dashed ${colors.borderLight}`,
+        paddingBottom: '15px',
+    };
+
+    const modalProductItemStyle = {
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '10px',
+    };
+
+    const modalProductImageStyle = {
+        width: '60px',
+        height: '60px',
+        objectFit: 'cover',
+        borderRadius: '8px',
+        marginRight: '15px',
+        border: `1px solid ${colors.borderLight}`,
+    };
+
+    const modalProductNameStyle = {
+        flexGrow: 1,
+        fontSize: '1em',
+        color: colors.darkText,
+    };
+
+    const modalProductPriceStyle = {
+        fontWeight: 'bold',
+        color: colors.primaryBlue,
+        fontSize: '1em',
+    };
+
+    const modalAddressStyle = {
+        lineHeight: '1.6',
+        color: colors.darkText,
+        marginBottom: '25px',
+        fontSize: '0.95em',
+    };
+
+    const modalFooterStyle = {
+        display: 'flex',
+        justifyContent: 'flex-end',
+        marginTop: '30px',
+    };
+
+    const closeModalButtonStyle = {
+        padding: '10px 20px',
+        backgroundColor: colors.secondaryGrey,
+        color: colors.white,
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        fontSize: '1em',
+        fontWeight: 'bold',
+        transition: 'background-color 0.3s ease, transform 0.2s ease',
+        boxShadow: `0 4px 10px ${colors.shadowSubtle}`,
+        fontFamily: 'Inter, sans-serif',
+        // Hover effect would need JS state
     };
 
     return (
@@ -292,7 +748,7 @@ const AdminOrderManagement = () => {
                 {loading ? (
                     <div style={loadingContainerStyle}>
                         <div style={spinnerStyle}></div>
-                        <p style={{ color: '#555', marginTop: '15px' }}>Loading orders...</p>
+                        <p style={{ color: colors.mediumText, marginTop: '15px', fontFamily: 'Inter, sans-serif' }}>Loading orders...</p>
                     </div>
                 ) : orders.length === 0 ? (
                     <div style={noOrdersMessageStyle}>
@@ -329,14 +785,14 @@ const AdminOrderManagement = () => {
                                             <td style={tableActionCellStyle}>
                                                 <button
                                                     onClick={() => handleViewClick(order)}
-                                                    style={{ ...actionButtonStyle, backgroundColor: '#007bff' }}
+                                                    style={{ ...actionButtonStyle, backgroundColor: colors.buttonPrimary }}
                                                 >
                                                     <i className="fas fa-eye"></i> View
                                                 </button>
                                                 <select
                                                     onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
                                                     value={order.status}
-                                                    style={{ ...actionButtonStyle, backgroundColor: '#6c757d', marginLeft: '10px', width: 'auto', minWidth: '100px', padding: '8px 12px' }}
+                                                    style={{ ...actionButtonStyle, backgroundColor: colors.buttonSecondary, width: 'auto', minWidth: '100px', padding: '8px 12px' }}
                                                 >
                                                     <option value="Pending">Pending</option>
                                                     <option value="Processing">Processing</option>
@@ -346,7 +802,7 @@ const AdminOrderManagement = () => {
                                                 </select>
                                                 <button
                                                     onClick={() => handleDeleteOrder(order._id)}
-                                                    style={{ ...actionButtonStyle, backgroundColor: '#dc3545', marginLeft: '10px' }}
+                                                    style={{ ...actionButtonStyle, backgroundColor: colors.buttonDanger }}
                                                 >
                                                     <i className="fas fa-trash-alt"></i> Delete
                                                 </button>
@@ -364,9 +820,10 @@ const AdminOrderManagement = () => {
                                     onClick={() => handlePageChange(page)}
                                     style={{
                                         ...paginationButtonStyle,
-                                        backgroundColor: currentPage === page ? '#3498db' : '#ecf0f1',
-                                        color: currentPage === page ? 'white' : '#34495e',
+                                        backgroundColor: currentPage === page ? colors.primaryBlue : colors.white,
+                                        color: currentPage === page ? colors.white : colors.darkText,
                                         fontWeight: currentPage === page ? 'bold' : 'normal',
+                                        border: `1px solid ${currentPage === page ? colors.primaryBlue : colors.borderLight}`,
                                     }}
                                 >
                                     {page}
@@ -385,7 +842,7 @@ const AdminOrderManagement = () => {
                             <div style={modalInfoGridStyle}>
                                 <p><strong>Status:</strong> <span style={{ color: getStatusColor(selectedOrder.status), fontWeight: 'bold' }}>{selectedOrder.status}</span></p>
                                 <p><strong>Order Date:</strong> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
-                                <p><strong>Total Amount:</strong> <span style={{ fontWeight: 'bold', color: '#007bff' }}>${selectedOrder.totalAmount.toFixed(2)}</span></p>
+                                <p><strong>Total Amount:</strong> <span style={{ fontWeight: 'bold', color: colors.primaryBlue }}>${selectedOrder.totalAmount.toFixed(2)}</span></p>
                             </div>
 
                             <h4 style={modalSectionHeaderStyle}>Products:</h4>
@@ -428,418 +885,34 @@ const AdminOrderManagement = () => {
     );
 };
 
-// --- Inline Styles for Luxury and Premium UI ---
-const pageContainerStyle = {
-    display: 'flex',
-    minHeight: '100vh',
-    backgroundColor: '#f0f2f5', // Light background for the whole page
-    fontFamily: 'Inter, Arial, sans-serif', // Consistent font
-};
-
-const contentAreaStyle = {
-    flex: 1,
-    padding: '40px',
-    backgroundColor: '#ffffff', // White background for the main content area
-    borderRadius: '12px',
-    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)', // Deeper shadow
-    margin: '30px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center', // Center content horizontally
-    animation: 'fadeIn 0.5s ease-out', // Fade in animation for the content area
-};
-
-const headerContainerStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    maxWidth: '1200px',
-    marginBottom: '40px',
-    paddingBottom: '15px',
-    borderBottom: '2px solid #e0f2f7',
-};
-
-const pageTitleStyle = {
-    color: '#2c3e50', // Darker title color
-    fontSize: '2.5em',
-    fontWeight: '700',
-    margin: 0,
-};
-
-const controlsContainerStyle = {
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'center', // Center controls
-    alignItems: 'center',
-    gap: '20px',
-    marginBottom: '40px',
-    width: '100%',
-    maxWidth: '1200px',
-    padding: '15px',
-    backgroundColor: '#f5f7f9',
-    borderRadius: '10px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-};
-
-const filterGroupStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    position: 'relative', // For search icon
-};
-
-const labelStyle = {
-    fontWeight: '600',
-    color: '#555',
-    fontSize: '1em',
-};
-
-const selectStyle = {
-    padding: '10px 15px',
-    border: '1px solid #cfd8dc',
-    borderRadius: '8px',
-    fontSize: '1em',
-    backgroundColor: 'white',
-    cursor: 'pointer',
-    transition: 'border-color 0.3s ease',
-    ':hover': {
-        borderColor: '#3498db',
-    },
-};
-
-const searchInputStyle = {
-    padding: '12px 18px 12px 45px', // Left padding for icon
-    width: '250px',
-    border: '1px solid #cfd8dc',
-    borderRadius: '8px',
-    fontSize: '1em',
-    boxSizing: 'border-box',
-    transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
-    ':focus': {
-        borderColor: '#3498db',
-        boxShadow: '0 0 0 3px rgba(52, 152, 219, 0.2)',
-        outline: 'none',
-    },
-};
-
-const searchIconStyle = {
-    position: 'absolute',
-    left: '15px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    color: '#999',
-    fontSize: '1.1em',
-};
-
-const errorMessageStyle = {
-    color: '#e74c3c',
-    textAlign: 'center',
-    fontSize: '1.1em',
-    fontWeight: 'bold',
-    padding: '12px',
-    backgroundColor: '#fde7e7',
-    borderRadius: '8px',
-    border: '1px solid #e74c3c',
-    width: '100%',
-    maxWidth: '800px',
-    marginBottom: '30px',
-    animation: 'shake 0.5s ease-in-out',
-};
-
-const successMessageStyle = {
-    color: '#28a745',
-    textAlign: 'center',
-    fontSize: '1.1em',
-    fontWeight: 'bold',
-    padding: '12px',
-    backgroundColor: '#d4edda',
-    borderRadius: '8px',
-    border: '1px solid #28a745',
-    width: '100%',
-    maxWidth: '800px',
-    marginBottom: '30px',
-    animation: 'bounceIn 0.6s ease-out',
-};
-
-const loadingContainerStyle = {
-    textAlign: 'center',
-    padding: '50px',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '300px',
-};
-
-const spinnerStyle = {
-    border: '8px solid #f3f3f3',
-    borderTop: '8px solid #3498db',
-    borderRadius: '50%',
-    width: '60px',
-    height: '60px',
-    animation: 'spin 1s linear infinite',
-    margin: '0 auto',
-};
-
-const noOrdersMessageStyle = {
-    textAlign: 'center',
-    fontSize: '1.3em',
-    color: '#666',
-    padding: '50px',
-    border: '2px dashed #ccc',
-    borderRadius: '10px',
-    backgroundColor: '#f9f9f9',
-    width: '80%',
-    maxWidth: '600px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-    marginTop: '20px',
-};
-
-const resetFilterButtonStyle = {
-    padding: '12px 25px',
-    backgroundColor: '#6c757d',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '1.1em',
-    fontWeight: 'bold',
-    marginTop: '20px',
-    transition: 'background-color 0.3s ease, transform 0.2s ease',
-    boxShadow: '0 4px 10px rgba(108, 117, 125, 0.3)',
-};
-
-const tableContainerStyle = {
-    width: '100%',
-    maxWidth: '1200px',
-    overflowX: 'auto',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
-    borderRadius: '10px',
-    backgroundColor: '#fff',
-    marginBottom: '40px',
-};
-
-const ordersTableStyle = {
-    width: '100%',
-    borderCollapse: 'separate',
-    borderSpacing: '0',
-    borderRadius: '10px',
-    overflow: 'hidden',
-};
-
-const tableHeaderRowStyle = {
-    backgroundColor: '#ecf0f1',
-    color: '#34495e',
-    fontSize: '1em',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-};
-
-const tableHeaderCellStyle = {
-    padding: '18px 20px',
-    textAlign: 'left',
-    borderBottom: '1px solid #ddd',
-};
-
-const tableRowStyle = {
-    borderBottom: '1px solid #f0f0f0',
-    transition: 'background-color 0.2s ease',
-    ':hover': {
-        backgroundColor: '#f8f8f8',
-    },
-};
-
-const tableCellStyle = {
-    padding: '12px 15px',
-    borderBottom: '1px solid #eee',
-    color: '#333',
-};
-
-const statusBadgeStyle = {
-    padding: '5px 10px',
-    borderRadius: '5px',
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: '0.9em',
-};
-
-const tableActionCellStyle = {
-    padding: '12px 15px',
-    borderBottom: '1px solid #eee',
-    whiteSpace: 'nowrap', // Prevent buttons from wrapping
-};
-
-const actionButtonStyle = {
-    padding: '8px 15px',
-    borderRadius: '5px',
-    border: 'none',
-    color: 'white',
-    cursor: 'pointer',
-    fontSize: '0.9em',
-    fontWeight: 'bold',
-    transition: 'background-color 0.3s ease, transform 0.2s ease',
-    display: 'inline-flex',
-    alignItems: 'center',
-    ':hover': {
-        backgroundColor: '#218838', // Placeholder, specific colors will override
-        transform: 'translateY(-1px)',
-    },
-};
-
-const paginationContainerStyle = {
-    marginTop: '30px',
-    textAlign: 'center',
-    display: 'flex',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    gap: '10px',
-};
-
-const paginationButtonStyle = {
-    padding: '12px 18px',
-    margin: '0 5px',
-    border: '1px solid #cfd8dc',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '1em',
-    transition: 'background-color 0.3s ease, color 0.3s ease, transform 0.2s ease',
-    ':hover': {
-        backgroundColor: '#3498db',
-        color: 'white',
-        transform: 'translateY(-2px)',
-    },
-};
-
-// --- Modal Styles ---
-const modalOverlayStyle = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-    animation: 'fadeIn 0.3s ease-out',
-};
-
-const modalContentStyle = {
-    backgroundColor: 'white',
-    padding: '35px',
-    borderRadius: '15px',
-    boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-    width: '90%',
-    maxWidth: '750px',
-    maxHeight: '90vh',
-    overflowY: 'auto',
-    animation: 'zoomIn 0.3s ease-out', // Zoom in animation for modal
-};
-
-const modalTitleStyle = {
-    fontSize: '2em',
-    color: '#2c3e50',
-    marginBottom: '25px',
-    fontWeight: '700',
-    borderBottom: '2px solid #e0f2f7',
-    paddingBottom: '10px',
-};
-
-const modalErrorMessageStyle = {
-    color: '#e74c3c',
-    textAlign: 'center',
-    fontSize: '1em',
-    fontWeight: 'bold',
-    padding: '10px',
-    backgroundColor: '#fde7e7',
-    borderRadius: '8px',
-    border: '1px solid #e74c3c',
-    marginBottom: '20px',
-};
-
-const modalInfoGridStyle = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '15px',
-    marginBottom: '25px',
-    paddingBottom: '15px',
-    borderBottom: '1px dashed #eee',
-};
-
-const modalSectionHeaderStyle = {
-    fontSize: '1.4em',
-    color: '#34495e',
-    marginTop: '25px',
-    marginBottom: '15px',
-    fontWeight: '600',
-};
-
-const modalProductsListStyle = {
-    maxHeight: '200px',
-    overflowY: 'auto',
-    paddingRight: '10px',
-    marginBottom: '25px',
-    borderBottom: '1px dashed #eee',
-    paddingBottom: '15px',
-};
-
-const modalProductItemStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    marginBottom: '10px',
-};
-
-const modalProductImageStyle = {
-    width: '60px',
-    height: '60px',
-    objectFit: 'cover',
-    borderRadius: '8px',
-    marginRight: '15px',
-    border: '1px solid #eee',
-};
-
-const modalProductNameStyle = {
-    flexGrow: 1,
-    fontSize: '1em',
-    color: '#333',
-};
-
-const modalProductPriceStyle = {
-    fontWeight: 'bold',
-    color: '#007bff',
-    fontSize: '1em',
-};
-
-const modalAddressStyle = {
-    lineHeight: '1.6',
-    color: '#555',
-    marginBottom: '25px',
-};
-
-const modalFooterStyle = {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    marginTop: '30px',
-};
-
-const closeModalButtonStyle = {
-    padding: '12px 25px',
-    backgroundColor: '#6c757d',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '1.1em',
-    fontWeight: 'bold',
-    transition: 'background-color 0.3s ease, transform 0.2s ease',
-    boxShadow: '0 4px 10px rgba(108, 117, 125, 0.3)',
-    ':hover': {
-        backgroundColor: '#5a6268',
-        transform: 'translateY(-2px)',
-    },
-};
-
+// Keyframes for animations (ensure these are in your client/src/index.css or a global stylesheet)
+/*
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+*/
 export default AdminOrderManagement;

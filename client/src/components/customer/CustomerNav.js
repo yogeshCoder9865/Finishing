@@ -2,7 +2,20 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import logo from '../../assesets/logo.png';
+
+// --- Professional UI Color Palette ---
+const colors = {
+    primaryBlue: '#007bff',        // Strong blue for primary actions/accents
+    secondaryGrey: '#6c757d',      // Muted grey for secondary actions/text
+    lightGrey: '#f8f9fa',          // Very light grey for backgrounds
+    white: '#ffffff',              // Pure white for nav background
+    darkText: '#343a40',           // Dark charcoal for main text
+    mediumText: '#6c757d',         // Medium grey for secondary text
+    borderLight: '#dee2e6',        // Light grey for subtle borders
+    shadowSubtle: 'rgba(0, 0, 0, 0.08)', // Soft shadow
+    buttonDanger: '#dc3545',       // Danger button red
+    warningOrange: '#ffc107',      // Standard warning orange for impersonation
+};
 
 const CustomerNav = () => {
     const { logout, impersonatingUser, exitImpersonation } = useAuth();
@@ -20,16 +33,157 @@ const CustomerNav = () => {
         }
     };
 
+    // --- Inline Styles for Professional Top Navigation ---
+
+    const navContainerStyle = {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: colors.white, // Clean white background
+        padding: '15px 30px',
+        boxShadow: `0 2px 10px ${colors.shadowSubtle}`, // Subtle shadow
+        fontFamily: 'Inter, sans-serif', // Modern, professional font
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        borderBottom: `1px solid ${colors.borderLight}`,
+        minHeight: '70px', // Standard height
+    };
+
+    const logoSectionStyle = {
+        display: 'flex',
+        alignItems: 'center',
+        marginRight: 'auto', // Pushes other items to the right
+    };
+
+    const logoImageStyle = {
+        width: '40px',
+        height: '40px',
+        borderRadius: '50%',
+        marginRight: '10px',
+        border: `2px solid ${colors.primaryBlue}`, // Blue accent border
+        boxShadow: `0 0 8px ${colors.primaryBlue}33`, // Subtle blue glow
+    };
+
+    const websiteNameStyle = {
+        fontSize: '1.6em',
+        fontWeight: '700',
+        color: colors.darkText,
+        letterSpacing: '0.2px',
+        margin: 0,
+    };
+
+    const navListStyle = {
+        listStyle: 'none',
+        padding: 0,
+        margin: 0,
+        display: 'flex',
+        alignItems: 'center',
+        flexGrow: 1, // Allows the nav items to spread
+        justifyContent: 'center', // Centers the navigation links
+    };
+
+    const navItemStyle = {
+        margin: '0 15px', // Spacing between items
+    };
+
+    const navLinkStyle = {
+        color: colors.mediumText, // Muted grey for links
+        textDecoration: 'none',
+        fontSize: '1em',
+        padding: '10px 0',
+        display: 'flex',
+        alignItems: 'center',
+        transition: 'color 0.3s ease, transform 0.2s ease',
+        fontWeight: '500', // Standard weight
+        position: 'relative',
+        // Hover effect for links (standard underscore)
+        // Note: Direct inline styles cannot handle pseudo-elements like ::after for animated underlines.
+        // For true animated underlines, you'd need a CSS file or a CSS-in-JS library.
+        // Here, we'll just change color and add a subtle transform.
+        ':hover': {
+            color: colors.primaryBlue, // Primary blue on hover
+            transform: 'translateY(-1px)', // Slight lift
+        },
+    };
+
+    const navIconStyle = {
+        marginRight: '8px',
+        fontSize: '1em',
+        color: colors.secondaryGrey, // Subtle icon color
+        transition: 'color 0.3s ease',
+        // Hover effect for icons (needs to be applied to parent link's hover)
+        // This is handled by a conceptual ':hover' on navLinkStyle
+    };
+
+    const logoutButtonStyle = {
+        // Inherit some base styles for consistency, then override
+        padding: '10px 20px',
+        backgroundColor: colors.buttonDanger, // Red for logout
+        color: colors.white,
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        fontSize: '0.95em',
+        fontWeight: '600',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: `0 3px 8px ${colors.shadowSubtle}`,
+        transition: 'background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease',
+        marginLeft: '20px', // Spacing from nav links
+        fontFamily: 'Inter, sans-serif',
+        // Hover/active effects would need JS state or CSS file
+    };
+
+    const impersonationBannerStyle = {
+        padding: '8px 15px',
+        backgroundColor: colors.warningOrange, // Standard warning orange
+        color: colors.darkText,
+        borderRadius: '5px',
+        fontSize: '0.85em',
+        fontWeight: '500',
+        textAlign: 'center',
+        boxShadow: `0 2px 8px ${colors.shadowSubtle}`,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: '20px', // Spacing from logout button
+        // Animation would need a CSS file
+    };
+
+    const impersonationTextStyle = {
+        margin: '0 0 5px 0',
+        lineHeight: '1.3',
+    };
+
+    const exitImpersonationButtonStyle = {
+        backgroundColor: colors.secondaryGrey, // Muted grey for exit
+        color: colors.white,
+        border: 'none',
+        padding: '6px 12px',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        fontSize: '0.8em',
+        fontWeight: 'bold',
+        marginTop: '5px',
+        boxShadow: `0 1px 4px ${colors.shadowSubtle}`,
+        transition: 'background-color 0.3s ease, transform 0.2s ease',
+        fontFamily: 'Inter, sans-serif',
+        // Hover effect would need JS state or CSS file
+    };
+
     return (
         <div style={navContainerStyle}>
             {/* Logo and Website Name */}
             <div style={logoSectionStyle}>
                 <img
-                    src={logo} // Placeholder logo, can be changed
+                    src="https://placehold.co/60x60/007bff/FFFFFF/png?text=Y" // Placeholder logo, can be changed
                     alt="Yogi Tech Logo"
                     style={logoImageStyle}
                 />
-                <h1 style={websiteNameStyle}>Yogi Tech</h1>
+                <h1 style={websiteNameStyle}>Moni Accessories</h1>
             </div>
 
             <ul style={navListStyle}>
@@ -58,182 +212,26 @@ const CustomerNav = () => {
                         <i style={navIconStyle} className="fas fa-user-circle"></i> My Profile
                     </Link>
                 </li>
-                <li style={navItemStyle}>
-                    <button onClick={handleLogout} style={logoutButtonStyle}>
-                        <i style={navIconStyle} className="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </li>
             </ul>
 
-            {impersonatingUser && (
-                <div style={impersonationBannerStyle}>
-                    <p style={impersonationTextStyle}>
-                        Viewing as: <strong style={{ color: '#2c3e50' }}>{impersonatingUser.firstName} {impersonatingUser.lastName}</strong>
-                    </p>
-                    <button onClick={handleExitImpersonation} style={exitImpersonationButtonStyle}>
-                        Exit Impersonation
-                    </button>
-                </div>
-            )}
+            {/* Right-aligned items: Impersonation Banner and Logout Button */}
+            <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+                {impersonatingUser && (
+                    <div style={impersonationBannerStyle}>
+                        <p style={impersonationTextStyle}>
+                            Viewing as: <strong style={{ color: colors.darkText }}>{impersonatingUser.firstName} {impersonatingUser.lastName}</strong>
+                        </p>
+                        <button onClick={handleExitImpersonation} style={exitImpersonationButtonStyle}>
+                            Exit Impersonation
+                        </button>
+                    </div>
+                )}
+                <button onClick={handleLogout} style={logoutButtonStyle}>
+                    <i style={{ marginRight: '8px', color: colors.white }} className="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
         </div>
     );
 };
 
-// --- Inline Styles for Luxury and Premium UI with Animations ---
-
-const navContainerStyle = {
-    width: '280px', // Wider navigation
-    backgroundColor: '#2c3e50', // Darker, premium background
-    color: '#ecf0f1', // Light text color
-    padding: '30px 0', // More vertical padding
-    minHeight: '100vh',
-    boxShadow: '5px 0 15px rgba(0,0,0,0.2)', // Stronger shadow
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    transition: 'width 0.3s ease-in-out', // Smooth width transition if you add collapse functionality
-};
-
-const logoSectionStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginBottom: '40px',
-    padding: '0 20px',
-    animation: 'fadeInDown 0.6s ease-out', // Animation for logo section
-};
-
-const logoImageStyle = {
-    width: '80px', // Larger logo
-    height: '80px',
-    borderRadius: '50%', // Circular logo
-    marginBottom: '10px',
-    border: '3px solid #3498db', // Accent border
-    boxShadow: '0 0 15px rgba(52, 152, 219, 0.5)', // Glow effect
-    transition: 'transform 0.3s ease-in-out',
-    ':hover': {
-        transform: 'scale(1.05)', // Slight scale on hover
-    },
-};
-
-const websiteNameStyle = {
-    fontSize: '2.2em', // Larger font size
-    fontWeight: '800', // Extra bold
-    color: '#3498db', // Vibrant accent color
-    textShadow: '1px 1px 3px rgba(0,0,0,0.3)', // Subtle text shadow
-    letterSpacing: '1px',
-};
-
-const navListStyle = {
-    listStyle: 'none',
-    padding: 0,
-    width: '100%',
-};
-
-const navItemStyle = {
-    marginBottom: '10px', // Less space between items
-    width: '100%',
-    animation: 'slideInLeft 0.5s ease-out forwards', // Animation for each item
-    opacity: 0, // Start invisible for animation
-    transform: 'translateX(-20px)', // Start off-screen for animation
-};
-
-// Adjust animation delay for staggered effect
-// This requires a dynamic style property or a CSS-in-JS library that supports it
-// For now, it's a conceptual effect. In a real app, you'd iterate and set delay.
-// Example: style={{ ...navItemStyle, animationDelay: `${index * 0.1}s` }}
-
-const navLinkStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '15px 30px', // More padding for larger clickable area
-    color: '#ecf0f1',
-    textDecoration: 'none',
-    fontSize: '1.1em',
-    fontWeight: '500',
-    transition: 'background-color 0.3s ease, color 0.3s ease, transform 0.2s ease',
-    borderRadius: '8px', // Rounded links
-    margin: '0 15px', // Margin to keep rounded corners visible
-    ':hover': {
-        backgroundColor: '#34495e', // Darker background on hover
-        color: '#3498db', // Accent color on hover
-        transform: 'translateX(5px)', // Slight slide effect
-        boxShadow: '0 2px 10px rgba(0,0,0,0.3)', // Subtle shadow on hover
-    },
-    ':active': {
-        transform: 'translateX(0)',
-    },
-};
-
-const navIconStyle = {
-    marginRight: '15px',
-    fontSize: '1.2em',
-    color: '#3498db', // Accent color for icons
-};
-
-const logoutButtonStyle = {
-    ...navLinkStyle, // Inherit link styles
-    width: 'auto', // Adjust width for button
-    border: 'none',
-    backgroundColor: 'transparent', // Make it transparent like a link
-    cursor: 'pointer',
-    justifyContent: 'flex-start', // Align text to start
-    padding: '15px 30px', // Ensure padding is consistent
-    color: '#e74c3c', // Red for logout
-    ':hover': {
-        backgroundColor: '#34495e',
-        color: '#c0392b', // Darker red on hover
-        transform: 'translateX(5px)',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-    },
-};
-
-const impersonationBannerStyle = {
-    marginTop: 'auto', // Pushes to the bottom
-    padding: '20px',
-    backgroundColor: '#f1c40f', // Warning yellow
-    color: '#2c3e50',
-    borderRadius: '10px',
-    fontSize: '0.95em',
-    fontWeight: '600',
-    textAlign: 'center',
-    width: 'calc(100% - 40px)', // Account for padding
-    boxShadow: '0 4px 15px rgba(241, 196, 15, 0.4)',
-    animation: 'fadeInUp 0.5s ease-out', // Animation for banner
-};
-
-const impersonationTextStyle = {
-    marginBottom: '15px',
-    lineHeight: '1.4',
-};
-
-const exitImpersonationButtonStyle = {
-    background: '#e74c3c', // Red for exit
-    color: 'white',
-    border: 'none',
-    padding: '10px 20px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '0.9em',
-    fontWeight: 'bold',
-    transition: 'background-color 0.3s ease, transform 0.2s ease',
-    boxShadow: '0 2px 8px rgba(231, 76, 60, 0.3)',
-    ':hover': {
-        backgroundColor: '#c0392b',
-        transform: 'translateY(-2px)',
-    },
-};
-
-// Keyframes for animations (add these to your client/src/index.css or a global stylesheet)
-/*
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideInLeft {
-    from { opacity: 0; transform: translateX(-30px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-*/
 export default CustomerNav;
