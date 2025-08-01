@@ -276,7 +276,7 @@ const LoginPage = () => {
                 <div style={loginHeaderStyle}>
                     <img
                         src={logo}
-                        alt="Yogi Tech Logo"
+                        alt="Moni Accessories"
                         style={logoImageStyle}
                     />
                     <h1 style={websiteNameStyle}>Moni Accessories</h1>

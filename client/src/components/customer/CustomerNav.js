@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import logo from '../../assesets/logo.png';
 
 // --- Professional UI Color Palette ---
 const colors = {
@@ -179,8 +180,8 @@ const CustomerNav = () => {
             {/* Logo and Website Name */}
             <div style={logoSectionStyle}>
                 <img
-                    src="https://placehold.co/60x60/007bff/FFFFFF/png?text=Y" // Placeholder logo, can be changed
-                    alt="Yogi Tech Logo"
+                    src={logo} // Placeholder logo, can be changed
+                    alt="Moni Tech Logo"
                     style={logoImageStyle}
                 />
                 <h1 style={websiteNameStyle}>Moni Accessories</h1>
